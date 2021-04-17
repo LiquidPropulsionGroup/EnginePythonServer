@@ -1,5 +1,5 @@
 from flask import Flask, abort
-import serial, json, sys
+import serial, redis, json, sys
 
 ####* User defined variables START *####
 try:
