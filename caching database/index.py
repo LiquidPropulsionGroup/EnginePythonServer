@@ -15,6 +15,13 @@ except IndexError:
     port = '/dev/controller_sensor' # defult value
 else:
     port = sys.argv[2]
+
+try:
+    sys.argv[3]
+except IndexError:
+    stream_name = 'sensor' # defult value
+else:
+    stream_name = sys.argv[3]
 ####! User defined variables END !####
 
 # Flask app settings
