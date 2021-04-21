@@ -34,6 +34,15 @@ services:
     devices:
       - "/dev/controller_main:/dev/controller_main"
 
+  storage-database-service:
+    container_name: storage-service
+    network_mode: host
+    build:
+      context: ./storage database
+      dockerfile: dockerfile
+    ports:
+      - 3004:3004
+
   redis-db:
     container_name: redis-database
     network_mode: host
