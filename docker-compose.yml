@@ -43,6 +43,15 @@ services:
     ports:
       - 3004:3004
 
+  graph-data-service:
+    container_name: graph-service
+    network_mode: host
+    build:
+      context: ./graph data
+      dockerfile: dockerfile
+    ports:
+      - 3005:3005
+
   redis-db:
     container_name: redis-database
     network_mode: host
