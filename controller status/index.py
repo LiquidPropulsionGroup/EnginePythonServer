@@ -29,7 +29,7 @@ ser.port = port
 ser.open()
 
 @app.route('/serial/controller/<action>')
-def main_valve_route(action):
+def main_controller_route(action):
   if ser.is_open == True:
     if action == 'STATUS':
       ser.write(b'STATUS\n')
