@@ -54,7 +54,7 @@ def main_valve_route(action):
     return abort(404)
 
 @app.route('/serial/press/<action>')
-def press_valve_route():
+def press_valve_route(action):
   if ser.is_open == True:
     if action == 'FUEL-PRESS-OPEN':
       ser.write(b'O1\n')
@@ -79,7 +79,7 @@ def press_valve_route():
     return abort(404)
 
 @app.route('/serial/purge/<action>')
-def purge_valve_route():
+def purge_valve_route(action):
   if ser.is_open == True:
     if action == 'FUEL-PURGE-OPEN':
       ser.write(b'O7\n')
@@ -104,7 +104,7 @@ def purge_valve_route():
     return abort(404)
 
 @app.route('/serial/vent/<action>')
-def vent_valve_route():
+def vent_valve_route(action):
   if ser.is_open == True:
     if action == 'FUEL-VENT-OPEN':
       ser.write(b'O3\n')
