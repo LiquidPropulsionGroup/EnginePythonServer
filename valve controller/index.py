@@ -32,22 +32,22 @@ ser.open()
 def main_valve_route(action):
   if ser.is_open == True:
     if action == 'FUEL-MAIN-OPEN':
-      ser.write(b'FUEL-MAIN-OPEN\n')
+      ser.write(b'O5\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'FUEL-MAIN-CLOSED':
-      ser.write(b'FUEL-MAIN-CLOSED\n')
+      ser.write(b'F5\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-MAIN-OPEN':
-      ser.write(b'LOX-MAIN-OPEN\n')
+      ser.write(b'O6\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-MAIN-CLOSED':
-      ser.write(b'LOX-MAIN-CLOSED\n')
+      ser.write(b'F6\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
@@ -57,22 +57,22 @@ def main_valve_route(action):
 def press_valve_route():
   if ser.is_open == True:
     if action == 'FUEL-PRESS-OPEN':
-      ser.write(b'FUEL-PRESS-OPEN\n')
+      ser.write(b'O1\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'FUEL-PRESS-CLOSED':
-      ser.write(b'FUEL-PRESS-CLOSED\n')
+      ser.write(b'F1\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-PRESS-OPEN':
-      ser.write(b'LOX-PRESS-OPEN\n')
+      ser.write(b'O2\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-PRESS-CLOSED':
-      ser.write(b'LOX-PRESS-CLOSED\n')
+      ser.write(b'F2\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
@@ -82,22 +82,22 @@ def press_valve_route():
 def purge_valve_route():
   if ser.is_open == True:
     if action == 'FUEL-PURGE-OPEN':
-      ser.write(b'FUEL-PURGE-OPEN\n')
+      ser.write(b'O7\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'FUEL-PURGE-CLOSED':
-      ser.write(b'FUEL-PURGE-CLOSED\n')
+      ser.write(b'F7\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-PURGE-OPEN':
-      ser.write(b'LOX-PURGE-OPEN\n')
+      ser.write(b'O8\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-PURGE-CLOSED':
-      ser.write(b'LOX-PURGE-CLOSED\n')
+      ser.write(b'F8\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
@@ -107,22 +107,22 @@ def purge_valve_route():
 def vent_valve_route():
   if ser.is_open == True:
     if action == 'FUEL-VENT-OPEN':
-      ser.write(b'FUEL-VENT-OPEN\n')
+      ser.write(b'O3\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'FUEL-VENT-CLOSED':
-      ser.write(b'FUEL-VENT-CLOSED\n')
+      ser.write(b'F3\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-VENT-OPEN':
-      ser.write(b'LOX-VENT-OPEN\n')
+      ser.write(b'O4\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
     if action == 'LOX-VENT-CLOSED':
-      ser.write(b'LOX-VENT-CLOSED\n')
+      ser.write(b'F4\n')
       message = ser.readline()
       return message.decode('UTF-8')
 
