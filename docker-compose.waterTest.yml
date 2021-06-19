@@ -1,0 +1,13 @@
+version: "3.4"
+
+services:
+  valve-control-service:
+    container_name: valve-control
+    network_mode: host
+    build:
+      context: ./valve controller
+      dockerfile: dockerfile
+    ports:
+      - 3001:3001
+    devices:
+      - "/dev/controller_main:/dev/controller_main"
