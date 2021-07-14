@@ -129,4 +129,4 @@ def vent_valve_route(action):
     return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3001)
+      app.run(host='192.168.0.11', port=3001, threaded=True)      

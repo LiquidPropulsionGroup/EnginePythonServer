@@ -59,4 +59,4 @@ def storage_control(action):
   return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3004)
+      app.run(host='192.168.0.11', port=3004, threaded=True)

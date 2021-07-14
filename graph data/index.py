@@ -36,4 +36,4 @@ def graph_data_route():
   return Response(event_Stream(), mimetype="text/event-stream")
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3005)
+      app.run(host='192.168.0.11', port=3005, threaded=True)

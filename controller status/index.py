@@ -39,4 +39,4 @@ def main_controller_route(action):
     return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3003)
+      app.run(host='192.168.0.11', port=3003, threaded=True)
