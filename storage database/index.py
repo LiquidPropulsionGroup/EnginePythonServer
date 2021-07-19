@@ -33,6 +33,14 @@ operation = True
 
 @app.route('/serial/storage/<action>')
 def storage_control(action):
+  """Route for initalizing Storage Backup
+
+  Arguments:
+      action {string} -- User Defined state that initiates/stops storage backup.
+
+  Returns:
+      string -- Returns a confirmation of a finished process.
+  """
   if action == 'START':
     # Changing global variabel to initalize loop
     operation = True
