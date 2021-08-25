@@ -1,4 +1,5 @@
 from flask import Flask, abort
+import redis as red
 import serial, json, sys
 
 ####* User defined variables START *####
@@ -15,6 +16,13 @@ except IndexError:
     port = '/dev/controller_sensor' # defult value
 else:
     port = sys.argv[2]
+
+try:
+    sys.argv[3]
+except IndexError:
+    stream_name = 'sensor'
+else:
+    stream_name = sys.argv[3]
 ####! User defined variables END !####
 
 # Flask app settings
@@ -48,4 +56,4 @@ def caching_control(action):
   return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3002, threaded=True)
+      app.run(host='127.0.0.1', port=3002, threaded=True)
