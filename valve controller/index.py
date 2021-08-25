@@ -30,6 +30,14 @@ ser.open()
 
 @app.route('/serial/main/<action>')
 def main_valve_route(action):
+  """Route for main valve
+
+  Arguments:
+      action {string} -- Define the state change for the LOX or FUEL
+
+  Returns:
+      string -- Returns the valve controllers message
+  """
   if ser.is_open == True:
     if action == 'FUEL-MAIN-OPEN':
       ser.write(b'O5\n')
@@ -55,6 +63,14 @@ def main_valve_route(action):
 
 @app.route('/serial/press/<action>')
 def press_valve_route(action):
+  """Route for press valve
+
+  Arguments:
+      action {string} -- Define the state change for the LOX and FUEL
+
+  Returns:
+      string -- Returns the valve controllers message
+  """
   if ser.is_open == True:
     if action == 'FUEL-PRESS-OPEN':
       ser.write(b'O1\n')
@@ -80,6 +96,14 @@ def press_valve_route(action):
 
 @app.route('/serial/purge/<action>')
 def purge_valve_route(action):
+  """Route for purge valve
+
+  Arguments:
+      action {[type]} -- Define the state change for the LOX and FUEL
+
+  Returns:
+      string -- Returns the valve controllers message
+  """
   if ser.is_open == True:
     if action == 'FUEL-PURGE-OPEN':
       ser.write(b'O7\n')
@@ -105,6 +129,14 @@ def purge_valve_route(action):
 
 @app.route('/serial/vent/<action>')
 def vent_valve_route(action):
+  """Route for vent valve
+
+  Arguments:
+      action {string} -- Define the state change for the LOX and FUEL
+
+  Returns:
+      string -- Returns the valve controllers message
+  """
   if ser.is_open == True:
     if action == 'FUEL-VENT-OPEN':
       ser.write(b'O3\n')
@@ -129,4 +161,4 @@ def vent_valve_route(action):
     return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3001)
+      app.run(host='192.168.0.11', port=3001, threaded=True)      
