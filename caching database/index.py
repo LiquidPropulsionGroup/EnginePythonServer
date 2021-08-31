@@ -1,6 +1,7 @@
 from flask import Flask, abort
 import redis as red
-import serial, json, sys
+import serial
+import json, sys, time
 
 ####* User defined variables START *####
 try:
@@ -13,7 +14,7 @@ else:
 try:
     sys.argv[2]
 except IndexError:
-    port = '/dev/controller_sensor' # defult value
+    port = '/dev/ttyACM0' # defult value
 else:
     port = sys.argv[2]
 
@@ -29,7 +30,7 @@ else:
 app = Flask(__name__)
 
 # Serial port settings
-ser = serial.Serial()
+ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
 ser.port = port
 
@@ -37,17 +38,49 @@ ser.port = port
 ser.open()
 
 # Creating redis client
-redis = red.Redis(host='192.168.0.11', port=6379)
+redis = red.Redis(host='127.0.0.1', port=6379)
+
+#Temp scope fix
+#json_object = None
+
+def something():
+    buffer = ''
+    json_object = None
+    while ser.is_open == True:
+      buffer+= ser.readline()
+      #print(buffer)
+      try:
+        print('loading JSON...')
+        print(buffer)
+        #decoded_buffer = buffer.decode('UTF-8')
+        #print(decoded_buffer)
+        json_object = json.loads(buffer)
+        #print(json_object)
+        buffer = ''
+        #print('The buffer is:')
+        #print(buffer)
+        print(redis.xlen(stream_name))
+        redis.xadd(stream_name, json_object)
+        print('added to redis stream')
+      except ValueError:
+        buffer = ''
+        
+
+      #message = ser.readline()
+      #print(message)
+      #decoded_message = message.decode('UTF-8')
+      #print(decoded_message)
+      #json_object = json.loads(decoded_message)
+      #redis.xadd(stream_name, json_object)
+    return 'Caching done'
 
 @app.route('/serial/caching/<action>')
 def caching_control(action):
   if action == 'START':
-    while ser.is_open == True:
-      message = ser.readline()
-      decoded_message = message.decode('UTF-8')
-      json_object = json.loads(decoded_message)
-      redis.xadd(stream_name, json_object)
-    return 'Caching done'
+    print('action start')
+    #ser.flushInput()
+    something()
+    print('action end')
   
   if action == 'CLOSE':
     ser.close()
