@@ -15,28 +15,7 @@ else:
 app = Flask(__name__)
 
 # Creating redis client
-redis = red.Redis(host='192.168.0.11', port=6379)
-
-# Connecting sqlite database
-connection = sqlite3.connect('database.db')
-cursor = connection.cursor()
-
-# Creating tabe storing engine data
-create_table = f"""CREATE TABLE IF NOT EXISTS {stream_name} 
-( Time varchar(255), 
-PT_HE varchar(255), 
-PT_Purge varchar(255), 
-PT_Pneu varchar(255), 
-PT_FUEL_PV varchar(255), 
-PT_LOX_PV varchar(255), 
-PT_FUEL_INJ varchar(255), 
-PT_CHAM varchar(255), 
-TC_FUEL_PV varchar(255), 
-TC_LOX_PV varchar(255), 
-TC_LOX_Valve_Main varchar(255), 
-RC_LOX_Level varchar(255), 
-FT_Thrust varchar(255))"""
-cursor.execute(create_table)
+redis = red.Redis(host='127.0.0.1', port=6379)
 
 # Global variable for control structure
 operation = True
@@ -54,17 +33,43 @@ def storage_control(action):
   if action == 'START':
     # Changing global variabel to initalize loop
     operation = True
+    # Connecting sqlite database
+    connection = sqlite3.connect('database.db')
+    cursor = connection.cursor()
+    # Creating tabe storing engine data
+    create_table = f""" CREATE TABLE IF NOT EXISTS {stream_name} 
+    ( Time varchar(255), 
+    PT_HE varchar(255), 
+    PT_Purge varchar(255), 
+    PT_Pneu varchar(255), 
+    PT_FUEL_PV varchar(255), 
+    PT_LOX_PV varchar(255), 
+    PT_FUEL_INJ varchar(255), 
+    PT_CHAM varchar(255), 
+    TC_FUEL_PV varchar(255), 
+    TC_LOX_PV varchar(255), 
+    TC_LOX_Valve_Main varchar(255), 
+    RC_LOX_Level varchar(255), 
+    FT_Thrust varchar(255)); """
+    cursor.execute(create_table)
     # Getting first item from stream to properly use XREAD 
     data = redis.xrange(stream_name, count=1)
-    (label, data) = data
+    #print(data)
+    (label, data) = data[0]
     # Getting the first set of XREAD data and decoupling the tuple for databasing
     data = redis.xread({ stream_name: f'{label.decode()}' }, block=0)
-    (label, data) = data
+    (label, data) = data[0]
+    #print(data)
     # Entering databasing loop that can only close if global variable 'operation' is set to False
     while operation == True:
       for sensor_reading in data:
-        (label, reading) = data[sensor_reading]
-        cursor.execute(f"INSERT INTO {stream_name} VALUES ({label.decode()}, {data[b'PT_HE'].decode()}, {data[b'PT_Purge'].decode()}, {data[b'PT_Pneu'].decode()}, {data[b'PT_FUEL_PV'].decode()}, {data[b'PT_LOX_PV'].decode()}, {data[b'PT_FUEL_INJ'].decode()}, {data[b'PT_CHAM'].decode()}, {data[b'TC_FUEL_PV'].decode()}, {data[b'TC_LOX_PV'].decode()}, {data[b'TC_LOX_Valve_Main'].decode()}, {data[b'RC_LOX_Level'].decode()}, {data[b'FT_Thrust'].decode()})")
+        #print(sensor_reading)
+        (label, reading) = sensor_reading
+        #print('Label and reading:')
+        #print(label)
+        #print(reading)
+        cursor.execute(f"INSERT INTO {stream_name} VALUES ({label.decode()}, {reading[b'PT_HE'].decode()}, {reading[b'PT_Purge'].decode()}, {reading[b'PT_Pneu'].decode()}, {reading[b'PT_FUEL_PV'].decode()}, {reading[b'PT_LOX_PV'].decode()}, {reading[b'PT_FUEL_INJ'].decode()}, {reading[b'PT_CHAM'].decode()}, {reading[b'TC_FUEL_PV'].decode()}, {reading[b'TC_LOX_PV'].decode()}, {reading[b'TC_LOX_Valve_Main'].decode()}, {reading[b'RC_LOX_Level'].decode()}, {reading[b'FT_Thrust'].decode()})")
+        #cursor.execute(f"INSERT INTO {stream_name} VALUES (
       data = redis.xread({ stream_name: f'{label.decode()}' }, block=0)
     # Send message to confirm finished databasing
     return 'Storage done'
