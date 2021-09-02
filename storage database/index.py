@@ -15,7 +15,7 @@ else:
 app = Flask(__name__)
 
 # Creating redis client
-redis = red.Redis(host='127.0.0.1', port=6379)
+redis = red.Redis(host='redis-database', port=6379)
 
 # Global variable for control structure
 operation = True
@@ -52,6 +52,7 @@ def storage_control(action):
     RC_LOX_Level varchar(255), 
     FT_Thrust varchar(255)); """
     cursor.execute(create_table)
+    connection.commit()
     # Getting first item from stream to properly use XREAD 
     data = redis.xrange(stream_name, count=1)
     #print(data)
@@ -63,23 +64,43 @@ def storage_control(action):
     # Entering databasing loop that can only close if global variable 'operation' is set to False
     while operation == True:
       for sensor_reading in data:
-        #print(sensor_reading)
-        (label, reading) = sensor_reading
-        #print('Label and reading:')
-        #print(label)
-        #print(reading)
-        cursor.execute(f"INSERT INTO {stream_name} VALUES ({label.decode()}, {reading[b'PT_HE'].decode()}, {reading[b'PT_Purge'].decode()}, {reading[b'PT_Pneu'].decode()}, {reading[b'PT_FUEL_PV'].decode()}, {reading[b'PT_LOX_PV'].decode()}, {reading[b'PT_FUEL_INJ'].decode()}, {reading[b'PT_CHAM'].decode()}, {reading[b'TC_FUEL_PV'].decode()}, {reading[b'TC_LOX_PV'].decode()}, {reading[b'TC_LOX_Valve_Main'].decode()}, {reading[b'RC_LOX_Level'].decode()}, {reading[b'FT_Thrust'].decode()})")
-        #cursor.execute(f"INSERT INTO {stream_name} VALUES (
+        #print('Trying to read new data')
+        try:
+          (label, reading) = sensor_reading
+        except ValueError:
+          print('Failed to get sensor_reading')
+        else:
+          print('New read:')
+          print(reading)
+          if reading:
+            print('Label and reading:')
+            print(label)
+            print(reading)
+            cursor.execute(f"INSERT INTO {stream_name} VALUES ({label.decode()}, {reading[b'PT_HE'].decode()}, {reading[b'PT_Purge'].decode()}, {reading[b'PT_Pneu'].decode()}, {reading[b'PT_FUEL_PV'].decode()}, {reading[b'PT_LOX_PV'].decode()}, {reading[b'PT_FUEL_INJ'].decode()}, {reading[b'PT_CHAM'].decode()}, {reading[b'TC_FUEL_PV'].decode()}, {reading[b'TC_LOX_PV'].decode()}, {reading[b'TC_LOX_Valve_Main'].decode()}, {reading[b'RC_LOX_Level'].decode()}, {reading[b'FT_Thrust'].decode()})")
+            connection.commit()
+#(numberofrows,) = cursor.fetchone()
+            print(cursor.rowcount)
+          elif reading=='':
+            print('Reading is empty, waiting...')
+            break
+          else:
+            print('Something happened')
+            break
+
+#cursor.execute(f"INSERT INTO {stream_name} VALUES (
+      print('Trying to read new data')
       data = redis.xread({ stream_name: f'{label.decode()}' }, block=0)
+      print('Unblocked')
+      print(data)
     # Send message to confirm finished databasing
     return 'Storage done'
 
   if action == 'CLOSE':
     # Setting 'operation' variable to False to stop databasing from redis cache
     operation = False
-    return 'Caching closed'
+    return 'Storage closed'
 
   return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='127.0.0.1', port=3004, threaded=True)
+      app.run(host='0.0.0.0', port=3004, threaded=True)

@@ -1,20 +1,21 @@
-version: "3.4"
+version: "3.2"
 
 services:
   caching-database-service:
     container_name: caching-service
-    network_mode: host
+    #network_mode: host
     build:
       context: ./caching database
       dockerfile: dockerfile
     ports:
       - 3002:3002
+    publish
     devices:
-      - "/dev/controller_sensor:/dev/controller_sensor"
+      - "/dev/controller_MEGA:/dev/controller_sensor"
 
   storage-database-service:
     container_name: storage-service
-    network_mode: host
+    #network_mode: host
     build:
       context: ./storage database
       dockerfile: dockerfile
@@ -23,7 +24,17 @@ services:
 
   redis-db:
     container_name: redis-database
-    network_mode: host
+    #network_mode: host
     image: redis
     ports:
       - 6379:6379
+    networks:
+      node_net:
+        ipv4_address: 192.168.0.11
+
+networks:
+  node_net: 
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/16

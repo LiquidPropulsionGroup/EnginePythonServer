@@ -14,7 +14,7 @@ else:
 try:
     sys.argv[2]
 except IndexError:
-    port = '/dev/ttyACM0' # defult value
+    port = '/dev/controller_sensor' # defult value
 else:
     port = sys.argv[2]
 
@@ -38,20 +38,23 @@ ser.port = port
 ser.open()
 
 # Creating redis client
-redis = red.Redis(host='127.0.0.1', port=6379)
+redis = red.Redis(host='redis-database', port=6379)
 
 #Temp scope fix
 #json_object = None
 
 def something():
+    #print('Run data extraction')
     buffer = ''
     json_object = None
     while ser.is_open == True:
-      buffer+= ser.readline()
+      #print('Serial is open:')
+      #print(ser.readline())
+      buffer+= ser.readline().decode('UTF-8')
       #print(buffer)
       try:
-        print('loading JSON...')
-        print(buffer)
+        #print('loading JSON...')
+        #print(buffer)
         #decoded_buffer = buffer.decode('UTF-8')
         #print(decoded_buffer)
         json_object = json.loads(buffer)
@@ -59,9 +62,9 @@ def something():
         buffer = ''
         #print('The buffer is:')
         #print(buffer)
-        print(redis.xlen(stream_name))
+        #print(redis.xlen(stream_name))
         redis.xadd(stream_name, json_object)
-        print('added to redis stream')
+        #print('added to redis stream')
       except ValueError:
         buffer = ''
         
@@ -89,4 +92,4 @@ def caching_control(action):
   return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='127.0.0.1', port=3002, threaded=True)
+      app.run(host='0.0.0.0', port=3002, threaded=True)
