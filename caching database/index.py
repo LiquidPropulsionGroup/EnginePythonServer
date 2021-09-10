@@ -51,6 +51,7 @@ def something():
       #print('Serial is open:')
       #print(ser.readline())
       buffer+= ser.readline().decode('UTF-8')
+      #print('Buffer reads:')
       #print(buffer)
       try:
         #print('loading JSON...')
@@ -63,9 +64,13 @@ def something():
         #print('The buffer is:')
         #print(buffer)
         #print(redis.xlen(stream_name))
-        redis.xadd(stream_name, json_object)
-        #print('added to redis stream')
+        if json_object:
+          redis.xadd(stream_name, json_object)
+          print(json_object)
+          print('Added to redis stream')
       except ValueError:
+        #print('ValueError')
+        #print(buffer)
         buffer = ''
         
 
@@ -80,6 +85,10 @@ def something():
 @app.route('/serial/caching/<action>')
 def caching_control(action):
   if action == 'START':
+    try:
+      ser.open()
+    except serial.serialutil.SerialException:
+      print('Port already open. Continuing...')
     print('action start')
     #ser.flushInput()
     something()
