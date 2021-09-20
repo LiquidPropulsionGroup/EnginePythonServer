@@ -43,43 +43,50 @@ redis = red.Redis(host='redis-database', port=6379)
 #Temp scope fix
 #json_object = None
 
-def something():
-    #print('Run data extraction')
-    buffer = ''
-    json_object = None
+def Cache():
+    # Function for extracting uint16_t (2 bytes) data from the serial stream
+    # Runs continuously while serial communication is present
     while ser.is_open == True:
-      #print('Serial is open:')
-      #print(ser.readline())
-      buffer+= ser.readline().decode('UTF-8')
-      #print('Buffer reads:')
-      #print(buffer)
-      try:
-        #print('loading JSON...')
-        #print(buffer)
-        #decoded_buffer = buffer.decode('UTF-8')
-        #print(decoded_buffer)
-        json_object = json.loads(buffer)
-        #print(json_object)
-        buffer = ''
-        #print('The buffer is:')
-        #print(buffer)
-        #print(redis.xlen(stream_name))
-        if json_object:
-          redis.xadd(stream_name, json_object)
-          print(json_object)
-          print('Added to redis stream')
-      except ValueError:
-        #print('ValueError')
-        #print(buffer)
-        buffer = ''
+      # The string is formatted as byte byte , byte byte , ... , byte byte \n
+      serial_buffer = ser.read_until('\n')
+      print(serial_buffer)
+
+    # #print('Run data extraction')
+    # buffer = ''
+    # json_object = None
+    # while ser.is_open == True:
+    #   #print('Serial is open:')
+    #   #print(ser.readline())
+    #   buffer+= ser.readline().decode('UTF-8')
+    #   #print('Buffer reads:')
+    #   #print(buffer)
+    #   try:
+    #     #print('loading JSON...')
+    #     #print(buffer)
+    #     #decoded_buffer = buffer.decode('UTF-8')
+    #     #print(decoded_buffer)
+    #     json_object = json.loads(buffer)
+    #     #print(json_object)
+    #     buffer = ''
+    #     #print('The buffer is:')
+    #     #print(buffer)
+    #     #print(redis.xlen(stream_name))
+    #     if json_object:
+    #       redis.xadd(stream_name, json_object)
+    #       print(json_object)
+    #       print('Added to redis stream')
+    #   except ValueError:
+    #     #print('ValueError')
+    #     #print(buffer)
+    #     buffer = ''
         
 
-      #message = ser.readline()
-      #print(message)
-      #decoded_message = message.decode('UTF-8')
-      #print(decoded_message)
-      #json_object = json.loads(decoded_message)
-      #redis.xadd(stream_name, json_object)
+    #   #message = ser.readline()
+    #   #print(message)
+    #   #decoded_message = message.decode('UTF-8')
+    #   #print(decoded_message)
+    #   #json_object = json.loads(decoded_message)
+    #   #redis.xadd(stream_name, json_object)
     return 'Caching done'
 
 @app.route('/serial/caching/<action>')
@@ -89,10 +96,9 @@ def caching_control(action):
       ser.open()
     except serial.serialutil.SerialException:
       print('Port already open. Continuing...')
-    print('action start')
+    print('ACTION START')
     #ser.flushInput()
-    something()
-    print('action end')
+    Cache()
   
   if action == 'CLOSE':
     ser.close()
