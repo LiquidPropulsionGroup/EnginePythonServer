@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 3002
 
-CMD ["python3", "index.py", "115200", "/dev/controller_SENSOR", "sensor_stream"]
+CMD ["python3", "index.py", "115200", "/dev/controller_sensor", "sensor_stream"]

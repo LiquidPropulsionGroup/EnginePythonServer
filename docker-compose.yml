@@ -1,18 +1,11 @@
 version: "3.1"
 services:
-  web:
-    build: .
-    ports:
-      - "5000:5000"
-  #redis:
-  #  image: "redis:alpine"
-
   caching-database-service:
     container_name: caching-service
     #network_mode: host
     build:
-      context: ./EnginePythonServer/caching database
-      dockerfile: dockerfile
+      context: ./caching database
+      dockerfile: ./dockerfile
     ports:
      - 3002:3002
     devices:
@@ -25,7 +18,7 @@ services:
     container_name: storage-service
     #network_mode: host
     build:
-      context: ./EnginePythonServer/storage database
+      context: ./storage database
       dockerfile: dockerfile
     ports:
       - 3004:3004
@@ -37,7 +30,7 @@ services:
     container_name: graph-service
     #network_mode: host
     build:
-      context: ./EnginePythonServer/graph data
+      context: ./graph data
       dockerfile: dockerfile
     ports:
       - 3005:3005
