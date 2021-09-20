@@ -16,10 +16,10 @@ services:
     ports:
      - 3002:3002
     devices:
-     - "/dev/controller_MEGA:/dev/controller_sensor"
+     - "/dev/controller_SENSOR:/dev/controller_sensor"
     environment:
-      #PYTHONUNBUFFERED: 1
-      SSL_DISABLE: "True"
+      - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
 
   storage-database-service:
     container_name: storage-service
@@ -30,8 +30,20 @@ services:
     ports:
       - 3004:3004
     environment:
-      PYTHONUNBUFFERED: 1
-      SSL_DISABLE: "True"
+      - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
+
+  graph-data-service:
+    container_name: graph-service
+    #network_mode: host
+    build:
+      context: ./EnginePythonServer/graph data
+      dockerfile: dockerfile
+    ports:
+      - 3005:3005
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
 
   redis-db:
     container_name: redis-database
