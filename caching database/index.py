@@ -7,7 +7,7 @@ import json, sys, time
 try:
     sys.argv[1]
 except IndexError:
-    baudrate = 9600 # defult value
+    baudrate = 115200 # defult value
 else:
     baudrate = sys.argv[1]
 
@@ -48,7 +48,7 @@ def Cache():
     # Runs continuously while serial communication is present
     while ser.is_open == True:
       # The string is formatted as byte byte , byte byte , ... , byte byte \n
-      serial_buffer = ser.read_until('\n')
+      serial_buffer = ser.read_until('\n', 6)
       print(serial_buffer)
 
     # #print('Run data extraction')
