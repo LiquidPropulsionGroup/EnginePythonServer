@@ -70,9 +70,6 @@ Keys = ["Timestamp",
         "FT_Thrust"
       ]
 
-#Temp scope fix
-#json_object = None
-
 def Cache():
     # Function for extracting uint16_t (2 bytes) data from the serial stream
     # Runs continuously while serial communication is present
@@ -82,13 +79,18 @@ def Cache():
 
     # Start the loop in the right place by finding a terminator character in the buffer
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+    
+    # Track the number of failed reads for debug
     count = 0
     while ser.is_open == True:
       print("=============")
+
       # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+
       # Verify that the buffer is of the correct length
       BUFFER_LENGTH = 38
+
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
         # Arduino is little-endian
@@ -97,22 +99,23 @@ def Cache():
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
-          data[Keys[item]] = unpack_data[item]
+          data[Keys[item]] = str(unpack_data[item])
+        print(data)
         json_data = json.dumps(data)
+        json_data = json.loads(json_data)		# Weird fix?
 
         # Then perform CRC TODO
 
         # Insert to redis
         if json_data:
           redis.xadd(stream_name, json_data)
-          print(json_data)
-          print('Added to redis stream')        
+          #print('Added to redis stream')        
 
         
       else:
         # If it is incorrect, discard the read and find another terminator
         count = count + 1
-        print("Wrong Length: " + count)
+        print("Wrong Length: " + str(count))
            
 
       # count = count + 1
