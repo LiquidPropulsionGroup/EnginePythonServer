@@ -7,22 +7,25 @@ import json, struct, sys, time
 try:
     sys.argv[1]
 except IndexError:
-    baudrate = 115200 # defult value
+    baudrate = 115200
 else:
     baudrate = sys.argv[1]
 
 try:
     sys.argv[2]
 except IndexError:
-    ports = serial.tools.list_ports.comports()
-    print(ports)
-    com_list = []
-    for p in ports:
-          com_list.append(p.device)
-    print(com_list)
-    # port = '/dev/controller_sensor' # defult value
-    port = com_list[1]
-    print(port)
+    # For use in desktop environment:
+    # ports = serial.tools.list_ports.comports()
+    # print(ports)
+    # com_list = []
+    # for p in ports:
+    #       com_list.append(p.device)
+    # print(com_list)
+    # port = com_list[1]
+    # print(port)
+
+    # For use in live environment
+    port = '/dev/controller_sensor'
 else:
     port = sys.argv[2]
 
@@ -81,16 +84,14 @@ def Cache():
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
     count = 0
     while ser.is_open == True:
-      print("==============")
-      print(count)
-      print(ser.in_waiting)
-      # Extract the next sequence of serial data until the terminator
+      print("=============")
+      # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-      print(serial_buffer)
       # Verify that the buffer is of the correct length
       BUFFER_LENGTH = 38
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
+        # Arduino is little-endian
         unpack_data = struct.unpack('<i h h h h h h h h h h h h h d', serial_buffer)
 
         # Build the JSON with struct method
@@ -99,14 +100,15 @@ def Cache():
           data[Keys[item]] = unpack_data[item]
         json_data = json.dumps(data)
 
-        print(json_data)
-        # Insert to redis
-        # if json_data:
-        #   redis.xadd(stream_name, json_data)
-        #   print(json_data)
-        #   print('Added to redis stream')        
-
         # Then perform CRC TODO
+
+        # Insert to redis
+        if json_data:
+          redis.xadd(stream_name, json_data)
+          print(json_data)
+          print('Added to redis stream')        
+
+        
       else:
         # If it is incorrect, discard the read and find another terminator
         count = count + 1
