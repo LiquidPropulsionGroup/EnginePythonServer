@@ -83,68 +83,23 @@ def Cache():
     while ser.is_open == True:
       print("==============")
       print(count)
+      print(ser.in_waiting)
       # Extract the next sequence of serial data until the terminator
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
       print(serial_buffer)
       # Verify that the buffer is of the correct length
       BUFFER_LENGTH = 38
       if len(serial_buffer) == BUFFER_LENGTH:
-        # If it is correct, slice the buffer
-        TimeStamp = serial_buffer[0:4]
-        PT_HE = serial_buffer[4:6]
-        PT_Purge = serial_buffer[6:8]
-        PT_Pneu = serial_buffer[8:10]
-        PT_FUEL_PV = serial_buffer[10:12]
-        PT_LOX_PV = serial_buffer[12:14]
-        #PT_FUEL_INJ = serial_buffer[14:16]
-        PT_CHAM = serial_buffer[14:16]
-        TC_FUEL_PV = serial_buffer[16:18]
-        TC_LOX_PV = serial_buffer[18:20]
-        TC_LOX_Valve_Main = serial_buffer[20:22]
-        TC_WATER_In = serial_buffer[22:24]
-        TC_WATER_Out = serial_buffer[24:26]
-        TC_CHAM = serial_buffer[26:28]
-        #RC_LOX_Level = serial_buffer[30:32]
-        FT_Thrust = serial_buffer[28:30]
-        Terminator = serial_buffer[30:38]
+        # Unpack the struct that is the serial message
+        unpack_data = struct.unpack('<i h h h h h h h h h h h h h d', serial_buffer)
 
-        # Process bytes into ints
-        TimeStamp_int = int.from_bytes(TimeStamp,"little",signed=False)
-        PT_HE_int = int.from_bytes(PT_HE,"little",signed=False)
-        PT_Purge_int = int.from_bytes(PT_Purge,"little",signed=False)
-        PT_Pneu_int = int.from_bytes(PT_Pneu,"little",signed=False)
-        PT_FUEL_PV_int = int.from_bytes(PT_FUEL_PV,"little",signed=False)
-        PT_LOX_PV_int = int.from_bytes(PT_LOX_PV,"little",signed=False)
-        #PT_FUEL_INJ_int = int.from_bytes(PT_FUEL_INJ,"little",signed=False)
-        PT_CHAM_int = int.from_bytes(PT_CHAM,"little",signed=False)
-        TC_FUEL_PV_int = int.from_bytes(TC_FUEL_PV,"little",signed=False)
-        TC_LOX_PV_int = int.from_bytes(TC_LOX_PV,"little",signed=False)
-        TC_LOX_Valve_Main_int = int.from_bytes(TC_LOX_Valve_Main,"little",signed=False)
-        TC_WATER_In_int = int.from_bytes(TC_WATER_In,"little",signed=False)
-        TC_WATER_Out_int = int.from_bytes(TC_WATER_Out,"little",signed=False)
-        TC_CHAM_int = int.from_bytes(TC_CHAM,"little",signed=False)
-        #RC_LOX_Level_int = int.from_bytes(RC_LOX_Level,"little",signed=False)
-        FT_Thrust_int = int.from_bytes(FT_Thrust,"little",signed=False)
-
-        # Build the JSON object
+        # Build the JSON with struct method
         data = {}
-        data[Keys[0]] = TimeStamp_int
-        data[Keys[1]] = PT_HE_int
-        data[Keys[2]] = PT_Purge_int
-        data[Keys[3]] = PT_Pneu_int
-        data[Keys[4]] = PT_FUEL_PV_int
-        data[Keys[5]] = PT_LOX_PV_int
-        data[Keys[6]] = PT_CHAM_int
-        data[Keys[7]] = TC_FUEL_PV_int
-        data[Keys[8]] = TC_LOX_PV_int
-        data[Keys[9]] = TC_LOX_Valve_Main_int
-        data[Keys[10]] = TC_WATER_In_int
-        data[Keys[11]] = TC_WATER_Out_int
-        data[Keys[12]] = TC_CHAM_int
-        data[Keys[13]] = FT_Thrust_int
+        for item in range(len(Keys)):
+          data[Keys[item]] = unpack_data[item]
         json_data = json.dumps(data)
-        print(json_data)
 
+        print(json_data)
         # Insert to redis
         # if json_data:
         #   redis.xadd(stream_name, json_data)
@@ -154,11 +109,13 @@ def Cache():
         # Then perform CRC TODO
       else:
         # If it is incorrect, discard the read and find another terminator
-        print("Wrong Length")    
+        count = count + 1
+        print("Wrong Length: " + count)
+           
 
-      count = count + 1
-      if count == 100:
-            break
+      # count = count + 1
+      # if count == 100:
+      #       break
 
       # Collect individual bytes until the terminator sequence is found
       # Empty the buffer before doing this to make searching easier...
