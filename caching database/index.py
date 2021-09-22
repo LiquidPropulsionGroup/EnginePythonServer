@@ -87,7 +87,7 @@ def Cache():
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
       print(serial_buffer)
       # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 14
+      BUFFER_LENGTH = 38
       if len(serial_buffer) == BUFFER_LENGTH:
         # If it is correct, slice the buffer
         TimeStamp = serial_buffer[0:4]
@@ -128,55 +128,33 @@ def Cache():
 
         # Build the JSON object
         data = {}
-        data[Keys(0)] = TimeStamp_int
-        data[Keys(1)] = PT_HE_int
-        data[Keys(2)] = PT_Purge_int
-        data[Keys(3)] = PT_Pneu_int
-        data[Keys(4)] = PT_FUEL_PV_int
-        data[Keys(5)] = PT_LOX_PV_int
-        data[Keys(6)] = PT_CHAM_int
-        data[Keys(7)] = TC_FUEL_PV_int
-        data[Keys(8)] = TC_LOX_PV_int
-        data[Keys(9)] = TC_LOX_Valve_Main_int
-        data[Keys(10)] = TC_WATER_In_int
-        data[Keys(11)] = TC_WATER_Out_int
-        data[Keys(12)] = TC_CHAM_int
-        data[Keys(13)] = FT_Thrust_int
+        data[Keys[0]] = TimeStamp_int
+        data[Keys[1]] = PT_HE_int
+        data[Keys[2]] = PT_Purge_int
+        data[Keys[3]] = PT_Pneu_int
+        data[Keys[4]] = PT_FUEL_PV_int
+        data[Keys[5]] = PT_LOX_PV_int
+        data[Keys[6]] = PT_CHAM_int
+        data[Keys[7]] = TC_FUEL_PV_int
+        data[Keys[8]] = TC_LOX_PV_int
+        data[Keys[9]] = TC_LOX_Valve_Main_int
+        data[Keys[10]] = TC_WATER_In_int
+        data[Keys[11]] = TC_WATER_Out_int
+        data[Keys[12]] = TC_CHAM_int
+        data[Keys[13]] = FT_Thrust_int
         json_data = json.dumps(data)
+        print(json_data)
 
         # Insert to redis
-        if json_data:
-          redis.xadd(stream_name, json_data)
-          print(json_data)
-          print('Added to redis stream')        
+        # if json_data:
+        #   redis.xadd(stream_name, json_data)
+        #   print(json_data)
+        #   print('Added to redis stream')        
 
         # Then perform CRC TODO
       else:
         # If it is incorrect, discard the read and find another terminator
-        print("Wrong Length")
-
-                  
-      # Slice the buffer into the expected sections
-      # ser.readinto(Temp)
-      # print("Bytes:")
-      # print(Temp.hex())
-      
-      # Starter = Temp[0:7]
-      # TimeStamp = Temp[8:15]
-      # PT_HE = Temp[16:19]
-      # Terminator = Temp[20:27]
-      #print(Starter)
-      #print(Starter.hex())
-      print(TimeStamp.hex())
-      print(PT_HE.hex())
-      print(Terminator.hex())
-      TimeStamp_int = int.from_bytes(TimeStamp,"little",signed=False)
-      PT_HE_int = int.from_bytes(PT_HE,"little",signed=False)
-      Terminator_int = int.from_bytes(Terminator,"little",signed=False)
-      print("Ints:")
-      print(TimeStamp_int)
-      print(PT_HE_int)
-      
+        print("Wrong Length")    
 
       count = count + 1
       if count == 100:
