@@ -82,8 +82,6 @@ def Cache():
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
     
     while ser.is_open == True:
-      print("=============")
-
       # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
@@ -113,58 +111,9 @@ def Cache():
         
       else:
         # If it is incorrect, discard the read and find another terminator
+        print("=============")
         print("WRONG LENGTH - DISCARD")
-           
 
-      # count = count + 1
-      # if count == 100:
-      #       break
-
-      # Collect individual bytes until the terminator sequence is found
-      # Empty the buffer before doing this to make searching easier...
-      # ser.reset_input_buffer()
-      # One_Packet = True
-      # while One_Packet == True:
-      #       serial_buffer += ser.read()
-      #       if 
-      #print(int.from_bytes(b'\x03\x14\x00\x01',"little",signed=False))
-
-    # #print('Run data extraction')
-    # buffer = ''
-    # json_object = None
-    # while ser.is_open == True:
-    #   #print('Serial is open:')
-    #   #print(ser.readline())
-    #   buffer+= ser.readline().decode('UTF-8')
-    #   #print('Buffer reads:')
-    #   #print(buffer)
-    #   try:
-    #     #print('loading JSON...')
-    #     #print(buffer)
-    #     #decoded_buffer = buffer.decode('UTF-8')
-    #     #print(decoded_buffer)
-    #     json_object = json.loads(buffer)
-    #     #print(json_object)
-    #     buffer = ''
-    #     #print('The buffer is:')
-    #     #print(buffer)
-    #     #print(redis.xlen(stream_name))
-    #     if json_object:
-    #       redis.xadd(stream_name, json_object)
-    #       print(json_object)
-    #       print('Added to redis stream')
-    #   except ValueError:
-    #     #print('ValueError')
-    #     #print(buffer)
-    #     buffer = ''
-        
-
-    #   #message = ser.readline()
-    #   #print(message)
-    #   #decoded_message = message.decode('UTF-8')
-    #   #print(decoded_message)
-    #   #json_object = json.loads(decoded_message)
-    #   #redis.xadd(stream_name, json_object)
     return 'Caching done'
 
 @app.route('/serial/caching/<action>')
