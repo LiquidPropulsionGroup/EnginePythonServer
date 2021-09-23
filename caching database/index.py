@@ -68,6 +68,7 @@ Keys = ["Timestamp",
         "TC_CHAM",
         #"RC_LOX_Level",
         "FT_Thrust"
+        "FL_WATER"
       ]
 
 def Cache():
@@ -80,8 +81,6 @@ def Cache():
     # Start the loop in the right place by finding a terminator character in the buffer
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
     
-    # Track the number of failed reads for debug
-    count = 0
     while ser.is_open == True:
       print("=============")
 
@@ -94,7 +93,7 @@ def Cache():
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
         # Arduino is little-endian
-        unpack_data = struct.unpack('<i h h h h h h h h h h h h h d', serial_buffer)
+        unpack_data = struct.unpack('<i h h h h h h h h h h h h h h d', serial_buffer)
 
         # Build the JSON with struct method
         data = {}
@@ -114,8 +113,7 @@ def Cache():
         
       else:
         # If it is incorrect, discard the read and find another terminator
-        count = count + 1
-        print("Wrong Length: " + str(count))
+        print("WRONG LENGTH - DISCARD")
            
 
       # count = count + 1
