@@ -26,18 +26,6 @@ services:
       - PYTHONUNBUFFERED=1
       - SSL_DISABLE=True
 
-  graph-data-service:
-    container_name: graph-service
-    #network_mode: host
-    build:
-      context: ./graph data
-      dockerfile: dockerfile
-    ports:
-      - 3005:3005
-    environment:
-      - PYTHONUNBUFFERED=1
-      - SSL_DISABLE=True
-
   redis-db:
     container_name: redis-database
     image: redis
