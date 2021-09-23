@@ -2,7 +2,6 @@ version: "3.1"
 services:
   caching-database-service:
     container_name: caching-service
-    #network_mode: host
     build:
       context: ./caching database
       dockerfile: ./dockerfile
@@ -16,7 +15,6 @@ services:
 
   storage-database-service:
     container_name: storage-service
-    #network_mode: host
     build:
       context: ./storage database
       dockerfile: dockerfile
