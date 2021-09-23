@@ -88,7 +88,7 @@ def Cache():
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
       # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 38
+      BUFFER_LENGTH = 40
 
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
