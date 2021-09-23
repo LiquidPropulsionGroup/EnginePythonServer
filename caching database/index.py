@@ -67,7 +67,7 @@ Keys = ["Timestamp",
         "TC_WATER_Out",
         "TC_CHAM",
         #"RC_LOX_Level",
-        "FT_Thrust"
+        "FT_Thrust",
         "FL_WATER"
       ]
 
