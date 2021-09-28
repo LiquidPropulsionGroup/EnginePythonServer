@@ -8,5 +8,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-CMD ["python3", "index.py", "115200", "/dev/controller_valve"]
 EXPOSE 3003
+
+CMD ["python3", "index.py", "115200", "/dev/controller_valve", "valve_stream"]

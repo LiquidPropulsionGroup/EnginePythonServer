@@ -1,164 +1,68 @@
-from flask import Flask, abort
-import serial, sys
+from flask import Flask, abort, request
+import redis as red
+import serial, serial.tools.list_ports
+import json, struct, sys, time
 
 ####* User defined variables START *####
 try:
     sys.argv[1]
 except IndexError:
-    baudrate = 9600 # defult value
+    baudrate = 115200 # defult value
 else:
     baudrate = sys.argv[1]
 
 try:
     sys.argv[2]
 except IndexError:
-    port = '/dev/controller_main' # defult value
+    # For use in desktop environment:
+    # ports = serial.tools.list_ports.comports()
+    # print(ports)
+    # com_list = []
+    # for p in ports:
+    #       com_list.append(p.device)
+    # print(com_list)
+    # port = com_list[1]
+    # print(port)
+
+    # For use in live environment
+    port = '/dev/controller_valve' # defult value
 else:
     port = sys.argv[2]
+
+try:
+    sys.argv[3]
+except IndexError:
+    stream_name = 'valve_stream'
+else:
+    stream_name = sys.argv[3]
 ####! User defined variables END !####
 
 # Flask app settings
 app = Flask(__name__)
 
 # Serial port settings
-ser = serial.Serial()
+ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
 ser.port = port
 
-# Openning serial port
+# Opening serial port
 ser.open()
 
-@app.route('/serial/main/<action>')
-def main_valve_route(action):
-  """Route for main valve
+# Creating redis client
+redis = red.Redis(host='redis-database', port=6379)
 
-  Arguments:
-      action {string} -- Define the state change for the LOX or FUEL
-
-  Returns:
-      string -- Returns the valve controllers message
-  """
-  if ser.is_open == True:
-    if action == 'FUEL-MAIN-OPEN':
-      ser.write(b'O5\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'FUEL-MAIN-CLOSED':
-      ser.write(b'F5\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-MAIN-OPEN':
-      ser.write(b'O6\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-MAIN-CLOSED':
-      ser.write(b'F6\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    return abort(404)
-
-@app.route('/serial/press/<action>')
+# One URL to build a complete serial message containing all desired valve states from ui
+@app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def press_valve_route(action):
-  """Route for press valve
+  if request.method == 'POST':
+    # Data comes from UI as JSON
+    message = request.json()
+    print(message)
 
-  Arguments:
-      action {string} -- Define the state change for the LOX and FUEL
-
-  Returns:
-      string -- Returns the valve controllers message
-  """
-  if ser.is_open == True:
-    if action == 'FUEL-PRESS-OPEN':
-      ser.write(b'O1\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'FUEL-PRESS-CLOSED':
-      ser.write(b'F1\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-PRESS-OPEN':
-      ser.write(b'O2\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-PRESS-CLOSED':
-      ser.write(b'F2\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
 
     return abort(404)
 
-@app.route('/serial/purge/<action>')
-def purge_valve_route(action):
-  """Route for purge valve
-
-  Arguments:
-      action {[type]} -- Define the state change for the LOX and FUEL
-
-  Returns:
-      string -- Returns the valve controllers message
-  """
-  if ser.is_open == True:
-    if action == 'FUEL-PURGE-OPEN':
-      ser.write(b'O7\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'FUEL-PURGE-CLOSED':
-      ser.write(b'F7\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-PURGE-OPEN':
-      ser.write(b'O8\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-PURGE-CLOSED':
-      ser.write(b'F8\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    return abort(404)
-
-@app.route('/serial/vent/<action>')
-def vent_valve_route(action):
-  """Route for vent valve
-
-  Arguments:
-      action {string} -- Define the state change for the LOX and FUEL
-
-  Returns:
-      string -- Returns the valve controllers message
-  """
-  if ser.is_open == True:
-    if action == 'FUEL-VENT-OPEN':
-      ser.write(b'O3\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'FUEL-VENT-CLOSED':
-      ser.write(b'F3\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-VENT-OPEN':
-      ser.write(b'O4\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    if action == 'LOX-VENT-CLOSED':
-      ser.write(b'F4\n')
-      message = ser.readline()
-      return message.decode('UTF-8')
-
-    return abort(404)
+# One URL to build a complete serial message containing all desired valve states from manual input
 
 if __name__ == '__main__':
-      app.run(host='192.168.0.11', port=3001, threaded=True)      
+      app.run(host='0.0.0.0', port=3003, threaded=True)      

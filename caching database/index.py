@@ -45,7 +45,7 @@ ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
 ser.port = port
 
-# Openning serial port
+# Opening serial port
 ser.open()
 
 # Creating redis client
