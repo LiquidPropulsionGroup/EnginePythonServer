@@ -32,7 +32,7 @@ else:
 try:
     sys.argv[3]
 except IndexError:
-    stream_name = 'sensor'
+    stream_name = 'sensor_stream'
 else:
     stream_name = sys.argv[3]
 ####! User defined variables END !####

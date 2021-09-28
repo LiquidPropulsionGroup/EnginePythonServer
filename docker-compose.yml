@@ -6,11 +6,24 @@ services:
       context: ./caching database
       dockerfile: ./dockerfile
     ports:
-     - 3002:3002
+      - 3002:3002
     devices:
-     - "/dev/controller_SENSOR:/dev/controller_sensor"
+      - "/dev/controller_SENSOR:/dev/controller_sensor"
     environment:
       - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
+
+  valve-controller-service:
+    container_name: valve-controller
+    build:
+      context: ./valve controller
+      dockerfile: ./dockerfile
+    ports:
+      - 3003:3003
+    devices:
+      - "/dev/controller_VALVE:/dev/controller_valve"
+    environment:
+      - PYTHONUNBEFFERED=1
       - SSL_DISABLE=True
 
   storage-database-service:
