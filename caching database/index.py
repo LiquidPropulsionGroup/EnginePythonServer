@@ -78,7 +78,7 @@ def Cache():
     # Flush the input buffer to avoid overflow and get fresh data
     ser.reset_input_buffer()
 
-    # Start the loop in the right place by finding a terminator character in the buffer
+    # Start the loop in the right place by finding a terminator string in the buffer
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
     
     while ser.is_open == True:
@@ -92,7 +92,6 @@ def Cache():
         # Unpack the struct that is the serial message
         # Arduino is little-endian
         unpack_data = struct.unpack('<i h h h h h h h h h h h h h h d', serial_buffer)
-
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
