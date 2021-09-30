@@ -104,7 +104,7 @@ def valve_update():
     print(request.content_type)
     print(message)
     instruction = b'\x3C'   # Starter character '<'
-    for key in KeyList[2:8]:
+    for key in KeyList[2:9]:
       print(key)
       print(message[key])
       instruction = compose_pair(key,message[key],instruction)
