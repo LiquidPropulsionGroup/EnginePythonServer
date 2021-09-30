@@ -85,9 +85,9 @@ def compose_pair(key, state, instruction):
     leadByte = b'\x65'    # FUEL_Purg(e)
 
   if state == True:
-    stateByte = b'\x01'   # True
+    stateByte = b'\x31'   # True (1)
   elif state == False:
-    stateByte = b'\x00'   # False
+    stateByte = b'\x30'   # False (0)
 
   instruction += leadByte + stateByte
   return instruction
@@ -97,16 +97,16 @@ def compose_pair(key, state, instruction):
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
-  print("ROUTE REACHED")
+  print("ROUTE REACHED", flush=True)
   if request.method == 'POST':
     # Data comes from UI as JSON
     message = request.get_json(force=True)
-    print(request.content_type)
+    # print(request.content_type)
     print(message)
     instruction = b'\x3C'   # Starter character '<'
     for key in KeyList[2:9]:
       print(key)
-      print(message[key])
+      print(int(message[key]))
       instruction = compose_pair(key,message[key],instruction)
 
     instruction += b'\x3E'  # Terminator character '>'
@@ -142,7 +142,7 @@ def valve_update():
       # Insert to redis
       if json_data:
         redis.xadd(stream_name, json_data)
-        #print('Added to redis stream')   
+        print('Added to redis stream')   
 
     return "Sent + Received"
 
