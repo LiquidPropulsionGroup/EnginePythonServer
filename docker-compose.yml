@@ -37,6 +37,19 @@ services:
       - PYTHONUNBUFFERED=1
       - SSL_DISABLE=True
 
+  serial-parser-service:
+    container_name: serial-parser
+    build:
+      context: ./serial parser
+      dockerfile: dockerfile
+    ports:
+      - 3005:3005
+    devices:
+      - "/dev/controller_MEGA:/dev/controller_MEGA"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
+
   redis-db:
     container_name: redis-database
     image: redis
