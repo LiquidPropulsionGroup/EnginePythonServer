@@ -16,17 +16,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    # ports = serial.tools.list_ports.comports()
-    # print(ports)
-    # com_list = []
-    # for p in ports:
-    #       com_list.append(p.device)
-    # print(com_list)
-    # port = com_list[1]
-    # print(port)
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+    com_list = []
+    for p in ports:
+          com_list.append(p.device)
+    print(com_list)
+    port = com_list[1]
+    print(port)
 
     # For use in live environment
-    port = '/dev/controller_valve' # defult value
+    # port = '/dev/controller_valve' # defult value
 else:
     port = sys.argv[2]
 
@@ -98,6 +98,7 @@ def compose_pair(key, state, instruction):
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
   print("ROUTE REACHED", flush=True)
+  print(request.method)
   if request.method == 'POST':
     # Data comes from UI as JSON
     message = request.get_json(force=True)
@@ -114,48 +115,44 @@ def valve_update():
     ser.write(instruction)
     print(instruction)
   
-  if request.method == 'GET':
-    # Data comes from UI as JSON
-    message = request.get_json(force=True)
-    # print(request.content_type)
-    print(message)
-
-    status_request_char = b'\x3F'
-    status_request = ''
-    for i in range(1,14): 
-      status_request += status_request_char
-    ser.write(status_request)
+  # if request.method == 'GET':
+  #   # Data comes from UI as JSON
+  #   status_request_char = b'\x3F'
+  #   status_request = ''
+  #   for i in range(1,14): 
+  #     status_request += status_request_char
+  #   ser.write(status_request)
 
 
-  ser.reset_input_buffer()
-  print("AWAIT RESPONSE")
-  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
-  print(serial_buffer)
-  # Extract the next sequence of serial data until the terminator/starter packets
-  # serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-  # print(serial_buffer)
+    ser.reset_input_buffer()
+    print("AWAIT RESPONSE")
+    serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
+    print(serial_buffer)
+    # Extract the next sequence of serial data until the terminator/starter packets
+    # serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+    # print(serial_buffer)
 
-  # Verify that the buffer is of the correct length
-  BUFFER_LENGTH = 19
+    # Verify that the buffer is of the correct length
+    BUFFER_LENGTH = 19
 
-  if len(serial_buffer) == BUFFER_LENGTH:
-    # Unpack the struct that is the serial message
-    # Arduino is little-endian
-    unpack_data = struct.unpack('<I i b b b b b b b I', serial_buffer)
-    print(unpack_data)
-    # Build the JSON with struct method
-    data = {}
-    for item in range(len(KeyList)):
-      data[KeyList[item]] = str(unpack_data[item])
-    print(data)
-    json_data = json.dumps(data)
-    json_data = json.loads(json_data)		# Weird fix?
-    print(json_data)
+    if len(serial_buffer) == BUFFER_LENGTH:
+      # Unpack the struct that is the serial message
+      # Arduino is little-endian
+      unpack_data = struct.unpack('<I i b b b b b b b I', serial_buffer)
+      print(unpack_data)
+      # Build the JSON with struct method
+      data = {}
+      for item in range(len(KeyList)):
+        data[KeyList[item]] = str(unpack_data[item])
+      print(data)
+      json_data = json.dumps(data)
+      json_data = json.loads(json_data)		# Weird fix?
+      print(json_data)
 
-    # Insert to redis
-    if json_data:
-      redis.xadd(stream_name, json_data)
-      print('Added to redis stream')   
+      # Insert to redis
+      # if json_data:
+      #   redis.xadd(stream_name, json_data)
+      #   print('Added to redis stream')   
 
     return "Sent + Received"
 
