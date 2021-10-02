@@ -17,17 +17,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    ports = serial.tools.list_ports.comports()
-    print(ports)
-    com_list = []
-    for p in ports:
-          com_list.append(p.device)
-    print(com_list)
-    port = com_list[1]
-    print(port)
+    #ports = serial.tools.list_ports.comports()
+    #print(ports)
+    #com_list = []
+    #for p in ports:
+    #      com_list.append(p.device)
+    #print(com_list)
+    #port = com_list[1]
+    #print(port)
 
     # For use in live environment
-    # port = '/dev/controller_valve' # defult value
+    port = '/dev/controller_valve' # defult value
 else:
     port = sys.argv[2]
 
@@ -59,6 +59,11 @@ redis = red.Redis(host='redis-database', port=6379)
 # Loop control variable
 CACHING = False
 
+# Serial port setup
+ser = serial.Serial(timeout=1)
+ser.baudrate = baudrate
+ser.port = port
+ser.open()
 
 # JSON Key list for sensor data
 Sensor_Keys = [
@@ -117,6 +122,7 @@ def Cache(ser, redis, caching_stream_name, valve_stream_name):
 
     while ser.is_open == True:
         if CACHING:
+            print("LOOPING")
             # Extract the next sequence of serial data until the terminator/starter packets
             serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
@@ -188,20 +194,15 @@ def compose_pair(key, state, instruction):
     return instruction
 
 if __name__ == "__main__":
-    # Serial port setup
-    ser = serial.Serial(timeout=1)
-    ser.baudrate = baudrate
-    ser.port = port
-    ser.open()
     # Threading the routes
     flaskApp_thread = threading.Thread(target=run_app)
-    caching_thread = threading.Thread(target=Cache, args=[ser, caching_stream_name, valve_stream_name, lock])
+    caching_thread = threading.Thread(target=Cache, args=[ser, caching_stream_name, valve_stream_name])
     flaskApp_thread.start()
     caching_thread.start()
 
 
 @app.route('/serial/caching/START')
-def cachingStart(ser, caching_stream_name, valve_stream_name):
+def cachingStart():
     try: 
         ser.open()
     except serial.serialutil.SerialException:
@@ -216,7 +217,7 @@ def cachingStart(ser, caching_stream_name, valve_stream_name):
 
 
 @app.route('/serial/caching/STOP')
-def cachingStop(ser):
+def cachingStop():
     global CACHING
     with lock:
         CACHING = False
@@ -228,7 +229,7 @@ def cachingStop(ser):
 # POST: sends a command downstream to the Arduino to execute
 # GET: polls the Arduino for the current status
 @app.route('/serial/valve/update', methods=['POST', 'GET'])
-def serialSend(ser):
+def serialSend():
     print("ROUTE REACHED")
     print(request.method)
     if request.method == 'POST':
@@ -258,3 +259,4 @@ def serialSend(ser):
         ser.write(status_request)
         print(status_request)
 
+    return "Message Sent"
