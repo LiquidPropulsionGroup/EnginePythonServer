@@ -205,12 +205,12 @@ if __name__ == "__main__":
 
 @app.route('/serial/caching/START')
 def cachingStart():
-    try: 
-        ser.open()
-    except serial.serialutil.SerialException:
-        print('Port already open. Continuing...')
     print('ACTION START')
     # Begin pumping data into the redis database
+    try:
+        ser.open()
+    except:
+        print("SERIAL ALREADY OPEN")
     global CACHING
     with lock:
         CACHING = True

@@ -80,7 +80,7 @@ def Cache():
 
     # Start the loop in the right place by finding a terminator string in the buffer
     serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-    
+
     while ser.is_open == True:
       # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
@@ -96,7 +96,7 @@ def Cache():
         data = {}
         for item in range(len(Keys)):
           data[Keys[item]] = str(unpack_data[item])
-        print(data)
+        #print(data)
         json_data = json.dumps(data)
         json_data = json.loads(json_data)		# Weird fix?
 
@@ -110,7 +110,8 @@ def Cache():
         
       else:
         # If it is incorrect, discard the read and find another terminator
-        print("=============")
+        print("=================")
+        print(serial_buffer)
         print("WRONG LENGTH - DISCARD")
 
     return 'Caching done'
