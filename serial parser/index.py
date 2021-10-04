@@ -120,6 +120,7 @@ def Cache(ser, redis, caching_stream_name, valve_stream_name):
     # serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
     while True:
+        print(time.time()*1000)
         if CACHING:
             #print("LOOPING")
             # Extract the next sequence of serial data until the terminator/starter packets
