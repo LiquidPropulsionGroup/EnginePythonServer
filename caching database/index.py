@@ -1,7 +1,7 @@
 from flask import Flask, abort
 import redis as red
 import serial, serial.tools.list_ports
-import json, struct, sys, time
+import json, struct, sys
 
 ####* User defined variables START *####
 try:
@@ -15,17 +15,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    # ports = serial.tools.list_ports.comports()
-    # print(ports)
-    # com_list = []
-    # for p in ports:
-    #       com_list.append(p.device)
-    # print(com_list)
-    # port = com_list[1]
-    # print(port)
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+    com_list = []
+    for p in ports:
+          com_list.append(p.device)
+    print(com_list)
+    port = com_list[1]
+    print(port)
 
     # For use in live environment
-    port = '/dev/controller_sensor'
+    # port = '/dev/controller_sensor'
 else:
     port = sys.argv[2]
 
@@ -52,7 +52,7 @@ ser.open()
 redis = red.Redis(host='redis-database', port=6379)
 
 # JSON Key list
-Keys = ["Timestamp",
+Keys = [
         "PT_HE",
         "PT_Purge",
         "PT_Pneu",
@@ -75,23 +75,20 @@ def Cache():
     # Function for extracting uint16_t (2 bytes) data from the serial stream
     # Runs continuously while serial communication is present
 
-    # Flush the input buffer to avoid overflow and get fresh data
+    # Flush the input buffer to get fresh data
     ser.reset_input_buffer()
-
-    # Start the loop in the right place by finding a terminator string in the buffer
-    serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
     while ser.is_open == True:
       # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-
+      
       # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 40
+      BUFFER_LENGTH = 36
 
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
         # Arduino is little-endian
-        unpack_data = struct.unpack('<i h h h h h h h h h h h h h h d', serial_buffer)
+        unpack_data = struct.unpack('<h h h h h h h h h h h h h h d', serial_buffer)
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
@@ -105,7 +102,7 @@ def Cache():
         # Insert to redis
         if json_data:
           redis.xadd(stream_name, json_data)
-          #print('Added to redis stream')        
+          # print('Added to redis stream')        
 
         
       else:
@@ -113,7 +110,6 @@ def Cache():
         print("=================")
         print(serial_buffer)
         print("WRONG LENGTH - DISCARD")
-
     return 'Caching done'
 
 @app.route('/serial/caching/<action>')
