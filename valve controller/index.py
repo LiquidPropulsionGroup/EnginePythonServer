@@ -16,17 +16,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    ports = serial.tools.list_ports.comports()
-    print(ports)
-    com_list = []
-    for p in ports:
-          com_list.append(p.device)
-    print(com_list)
-    port = com_list[1]
-    print(port)
+    # ports = serial.tools.list_ports.comports()
+    # print(ports)
+    # com_list = []
+    # for p in ports:
+    #       com_list.append(p.device)
+    # print(com_list)
+    # port = com_list[1]
+    # print(port)
 
     # For use in live environment
-    # port = '/dev/controller_valve' # defult value
+    port = '/dev/controller_valve' # defult value
 else:
     port = sys.argv[2]
 
@@ -100,12 +100,12 @@ def valve_update():
     # Data comes from UI as JSON
     message = request.get_json(force=True)
     # print(request.content_type)
-    print(message)
+    # print(message)
     # Build the instruction message
     instruction = b'\x3C'   # Starter character '<'
     for key in KeyList:
-      print(key)
-      print(int(message[key]))
+      # print(key)
+      # print(int(message[key]))
       instruction = compose_pair(key,message[key],instruction)
     instruction += b'\x3E'  # Terminator character '>'
 
