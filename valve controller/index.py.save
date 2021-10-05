@@ -38,15 +38,18 @@ else:
     stream_name = sys.argv[3]
 ####! User defined variables END !####
 
+# Flask app settings
+app = Flask(__name__)
+# To enable POST requests
+CORS(app)
+
 # Serial port settings
 ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
 ser.port = port
 
-# Flask app settings
-app = Flask(__name__)
-# To enable POST requests
-CORS(app)
+# Opening serial port
+ser.open()
 
 # Creating redis client
 redis = red.Redis(host='redis-database', port=6379)
@@ -63,19 +66,19 @@ KeyList = [
 ]
 
 def compose_pair(key, state, instruction):
-  if key == KeyList[0]:
+  if key == KeyList[2]:
     leadByte = b'\x53'    # FUEL_Pres(S)
-  elif key == KeyList[1]:
-    leadByte = b'\x73'    # FUEL_Pres(S)
-  elif key == KeyList[2]:
-    leadByte = b'\x54'    # FUEL_Ven(T)
   elif key == KeyList[3]:
-    leadByte = b'\x74'    # LOX_Ven(t)
+    leadByte = b'\x73'    # FUEL_Pres(S)
   elif key == KeyList[4]:
-    leadByte = b'\x4D'    # (M)ain
+    leadByte = b'\x54'    # FUEL_Ven(T)
   elif key == KeyList[5]:
-    leadByte = b'\x45'    # FUEL_Purg(E)
+    leadByte = b'\x74'    # LOX_Ven(t)
   elif key == KeyList[6]:
+    leadByte = b'\x4D'    # (M)ain
+  elif key == KeyList[7]:
+    leadByte = b'\x45'    # FUEL_Purg(E)
+  elif key == KeyList[8]:
     leadByte = b'\x65'    # FUEL_Purg(e)
 
   if state == True:
@@ -91,15 +94,8 @@ def compose_pair(key, state, instruction):
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
-  print("ROUTE REACHED", flush=True) # WEIRD FIX ALERT
-  try:
-    # Opening serial port
-    ser.open()
-    #ser.close()
-    #ser.open()
-  except:
-    print("Already open...")
-  #print(request.method)
+  print("ROUTE REACHED")
+  print(request.method)
   if request.method == 'POST':
     # Data comes from UI as JSON
     message = request.get_json(force=True)
@@ -129,10 +125,9 @@ def valve_update():
     ser.write(status_request)
     print(status_request)
 
-  #ser.reset_input_buffer()
-  #print("AWAIT RESPONSE")
-  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
-  #print(serial_buffer)
+  s  print("AWAIT RESPONSE")
+  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+  print(serial_buffer)
 
   # Verify that the buffer is of the correct length
   BUFFER_LENGTH = 15
@@ -140,24 +135,24 @@ def valve_update():
   if len(serial_buffer) == BUFFER_LENGTH:
     # Unpack the struct that is the serial message
     # Arduino is little-endian
-    unpack_data = struct.unpack('<I b b b b b b b I', serial_buffer)
-    #print(unpack_data)
+    unpack_data = struct.unpack('<b b b b b b b d', serial_buffer)
+    print(unpack_data)
     # Build the JSON with struct method
     data = {}
     for item in range(len(KeyList)):
-      data[KeyList[item]] = str(unpack_data[item+1])
+      data[KeyList[item]] = str(unpack_data[item])
       
-    # print(data)
+    print(data)
     json_data = json.dumps(data)
     json_data = json.loads(json_data)		# Weird fix?
-    # print(json_data)
+    print(json_data)
 
     # Insert to redis
     if json_data:
       redis.xadd(stream_name, json_data)
-      # print('Added to redis stream')
+      print('Added to redis stream')
 
-  return "Sent + Received"
+    return "Sent + Received"
 
 if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=3003)      
+      app.run(host='0.0.0.0', port=3003, threaded=True)      
