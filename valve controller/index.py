@@ -94,8 +94,8 @@ def compose_pair(key, state, instruction):
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
-  print("ROUTE REACHED")
-  print(request.method)
+  #print("ROUTE REACHED", flush=True) # WEIRD FIX ALERT
+  #print(request.method)
   if request.method == 'POST':
     # Data comes from UI as JSON
     message = request.get_json(force=True)
@@ -111,7 +111,7 @@ def valve_update():
 
     # Send the instruction message
     ser.write(instruction)
-    print(instruction)
+    #print(instruction)
     
   
   if request.method == 'GET':
@@ -123,14 +123,12 @@ def valve_update():
         status_request += status_request_char
     status_request += b'\x3E'
     ser.write(status_request)
-    print(status_request)
+    #print(status_request)
 
-# json_data = ''  
-# while json_data == '':
-  ser.reset_input_buffer()
-  print("AWAIT RESPONSE")
-  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-  print(serial_buffer)
+  #ser.reset_input_buffer()
+  #print("AWAIT RESPONSE")
+  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
+  #print(serial_buffer)
 
   # Verify that the buffer is of the correct length
   BUFFER_LENGTH = 15
@@ -138,27 +136,24 @@ def valve_update():
   if len(serial_buffer) == BUFFER_LENGTH:
     # Unpack the struct that is the serial message
     # Arduino is little-endian
-    unpack_data = struct.unpack('<b b b b b b b d', serial_buffer)
-    print(unpack_data)
+    unpack_data = struct.unpack('<I b b b b b b b I', serial_buffer)
+    #print(unpack_data)
     # Build the JSON with struct method
     data = {}
     for item in range(len(KeyList)):
-      print(item)
-      print(unpack_data[item])
-      data[KeyList[item]] = str(unpack_data[item])
+      data[KeyList[item]] = str(unpack_data[item+1])
       
-    print(data)
+    # print(data)
     json_data = json.dumps(data)
     json_data = json.loads(json_data)		# Weird fix?
-    print(json_data)
+    # print(json_data)
 
     # Insert to redis
     if json_data:
-      # redis.xadd(stream_name, json_data)
-      print('Added to redis stream') 
-      # json_data = ''  
+      redis.xadd(stream_name, json_data)
+      # print('Added to redis stream')
 
-    return "Sent + Received"
+  return "Sent + Received"
 
 if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=3003, threaded=True)      
+      app.run(host='0.0.0.0', port=3003)      
