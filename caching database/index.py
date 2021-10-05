@@ -15,17 +15,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    ports = serial.tools.list_ports.comports()
-    print(ports)
-    com_list = []
-    for p in ports:
-          com_list.append(p.device)
-    print(com_list)
-    port = com_list[1]
-    print(port)
+    # ports = serial.tools.list_ports.comports()
+    # print(ports)
+    # com_list = []
+    # for p in ports:
+    #       com_list.append(p.device)
+    # print(com_list)
+    # port = com_list[1]
+    # print(port)
 
     # For use in live environment
-    # port = '/dev/controller_sensor'
+    port = '/dev/controller_sensor'
 else:
     port = sys.argv[2]
 
