@@ -22,7 +22,7 @@ def Store():
     global operation
 
     # Connect to the sqlite3 database
-    connection = sqlite3.connect('database.db')
+    connection = sqlite3.connect('./dat/database.db')
     print("db connected")
 
     # Establish the cursor to do operations on the .db

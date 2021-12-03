@@ -36,6 +36,8 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
       - SSL_DISABLE=True
+    volumes:
+      - ./Data_files:/app/dat
 
   # serial-parser-service:
   #   container_name: serial-parser
