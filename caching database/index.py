@@ -124,6 +124,7 @@ def caching_control(action):
     Cache()
   
   if action == 'CLOSE':
+    # this might be a bad way to stop the program, causes shitpant
     ser.close()
     return 'Caching closed'
 

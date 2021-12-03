@@ -26,16 +26,16 @@ services:
      - PYTHONUNBEFFERED=1
      - SSL_DISABLE=True
 
-  # storage-database-service:
-  #   container_name: storage-service
-  #   build:
-  #     context: ./storage database
-  #     dockerfile: dockerfile
-  #   ports:
-  #     - 3004:3004
-  #   environment:
-  #     - PYTHONUNBUFFERED=1
-  #     - SSL_DISABLE=True
+  storage-database-service:
+    container_name: storage-service
+    build:
+      context: ./storage database
+      dockerfile: dockerfile
+    ports:
+      - 3004:3004
+    environment:
+      - PYTHONUNBUFFERED=1
+      - SSL_DISABLE=True
 
   # serial-parser-service:
   #   container_name: serial-parser
