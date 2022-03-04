@@ -66,7 +66,7 @@ def compose_pair(key, state, instruction):
   if key == KeyList[0]:
     leadByte = b'\x53'    # FUEL_Pres(S)
   elif key == KeyList[1]:
-    leadByte = b'\x73'    # FUEL_Pres(S)
+    leadByte = b'\x73'    # LOX_Pres(S)
   elif key == KeyList[2]:
     leadByte = b'\x54'    # FUEL_Ven(T)
   elif key == KeyList[3]:
@@ -76,7 +76,7 @@ def compose_pair(key, state, instruction):
   elif key == KeyList[5]:
     leadByte = b'\x45'    # FUEL_Purg(E)
   elif key == KeyList[6]:
-    leadByte = b'\x65'    # FUEL_Purg(e)
+    leadByte = b'\x65'    # LOX_Purg(e)
 
   if state == True:
     stateByte = b'\x31'   # True (1)
