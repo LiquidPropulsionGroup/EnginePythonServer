@@ -83,8 +83,7 @@ Sensor_Keys = [
     "TC_WATER_Out",
     "TC_CHAM",
     #"RC_LOX_Level",
-    "FT_Thrust",
-    "FL_WATER"
+    "FT_Thrust"
 ]
 
 # JSON Key list for valve status
@@ -106,8 +105,8 @@ def Cache(ser, redis, caching_stream_name, valve_stream_name):
     # Function for sorting out which type of message is being received
     global CACHING
 
-    # Sensor serial messages are of length 40 bytes
-    SENSOR_BUFFER_LENGTH = 40
+    # Sensor serial messages are of length 38 bytes
+    SENSOR_BUFFER_LENGTH = 38
     # Valve serial messages are of length 19 bytes
     VALVE_BUFFER_LENGTH = 19
 
@@ -120,7 +119,7 @@ def Cache(ser, redis, caching_stream_name, valve_stream_name):
     # serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
 
     while True:
-        print(time.time()*1000)
+        # print(time.time()*1000)
         if CACHING:
             #print("LOOPING")
             # Extract the next sequence of serial data until the terminator/starter packets
@@ -130,7 +129,7 @@ def Cache(ser, redis, caching_stream_name, valve_stream_name):
             if len(serial_buffer) == SENSOR_BUFFER_LENGTH:
                 # Unpack the struct that is the serial message
                 # Arduino is little-endian
-                unpack_data = struct.unpack('<i h h h h h h h h h h h h h h d', serial_buffer)
+                unpack_data = struct.unpack('<i h h h h h h h h h h h h h d', serial_buffer)
                 # Build the JSON with struct method
                 data = {}
                 for item in range(len(Sensor_Keys)):

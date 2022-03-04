@@ -45,8 +45,7 @@ def Store():
     TC_WATER_In varchar(255),
     TC_WATER_Out varchar(255),
     TC_CHAM varchar(255),
-    FT_Thrust varchar(255),
-    FL_WATER varchar(255) );"""
+    FT_Thrust varchar(255));"""
     # Create the table
     cursor.execute(create_table)
     # Commit changes to the .db
@@ -93,8 +92,7 @@ def Store():
             {sensor_data[b'TC_WATER_In'].decode()},
             {sensor_data[b'TC_WATER_Out'].decode()},
             {sensor_data[b'TC_CHAM'].decode()},
-            {sensor_data[b'FT_Thrust'].decode()},
-            {sensor_data[b'FL_WATER'].decode()} );"""
+            {sensor_data[b'FT_Thrust'].decode()};"""
             print("insert command generated")
 
             # Execute the SQL command
