@@ -92,6 +92,7 @@ def compose_pair(key, state, instruction):
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
   print("ROUTE REACHED", flush=True) # WEIRD FIX ALERT
+  #print("???")
   try:
     # Opening serial port
     ser.open()
@@ -99,12 +100,14 @@ def valve_update():
     #ser.open()
   except:
     print("Already open...")
-  #print(request.method)
+  print(request.method)
+
   if request.method == 'POST':
     # Data comes from UI as JSON
     message = request.get_json(force=True)
     # print(request.content_type)
-    # print(message)
+    print("RECEIVED POST REQUEST")
+    print(message)
     # Build the instruction message
     instruction = b'\x3C'   # Starter character '<'
     for key in KeyList:
@@ -130,9 +133,9 @@ def valve_update():
     print(status_request)
 
   #ser.reset_input_buffer()
-  #print("AWAIT RESPONSE")
+  print("AWAIT RESPONSE")
   serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
-  #print(serial_buffer)
+  print(serial_buffer)
 
   # Verify that the buffer is of the correct length
   BUFFER_LENGTH = 15
@@ -150,12 +153,15 @@ def valve_update():
     # print(data)
     json_data = json.dumps(data)
     json_data = json.loads(json_data)		# Weird fix?
-    # print(json_data)
+    print(json_data)
 
     # Insert to redis
     if json_data:
       redis.xadd(stream_name, json_data)
       # print('Added to redis stream')
+      print("Reply:")
+      print(json_data)
+      return json_data
 
   return "Sent + Received"
 

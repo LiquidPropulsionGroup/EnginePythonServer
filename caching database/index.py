@@ -107,6 +107,7 @@ def Cache():
       else:
         # If it is incorrect, discard the read and find another terminator
         print("=================")
+        print(len(serial_buffer))
         print(serial_buffer)
         print("WRONG LENGTH - DISCARD")
     return 'Caching done'
