@@ -94,6 +94,7 @@ def Cache(ser, redis):
     count = count + 1
     if (count >= 50):
       print(CACHING)
+      count = 0
     
     if CACHING:
       print("LOOPING")
