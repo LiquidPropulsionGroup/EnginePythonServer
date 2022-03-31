@@ -108,7 +108,7 @@ def Store(redis):
 
 
                 # Write the SQL command to add the data to the .db
-                insert_string = f""" INSERT INTO {stream_name} (PT_HE, PT_Purge, PT_Pneu, PT_FUEL_PV, PT_LOX_PV, PT_CHAM, TC_FUEL_PV, TC_LOX_PV, TC_LOX_Valve_Main, TC_WATER_In, TC_WATER_Out, FT_Thrust) VALUES 
+                insert_string = f""" INSERT INTO {stream_name} (Timestamp, PT_HE, PT_Purge, PT_Pneu, PT_FUEL_PV, PT_LOX_PV, PT_CHAM, TC_FUEL_PV, TC_LOX_PV, TC_LOX_Valve_Main, TC_WATER_In, TC_WATER_Out, TC_CHAM, FT_Thrust) VALUES 
                 ( {sensor_timestamp[0]},
                 {sensor_data[b'PT_HE'].decode()},
                 {sensor_data[b'PT_Purge'].decode()},
