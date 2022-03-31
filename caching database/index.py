@@ -99,7 +99,7 @@ def Cache(ser, redis):
     if CACHING:
       print("LOOPING")
       # Flush the input buffer to get fresh data
-      ser.reset_input_buffer()
+      # ser.reset_input_buffer()
 
       # Extract the next sequence of serial data until the terminator/starter packets
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
