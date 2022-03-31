@@ -122,7 +122,7 @@ def Store(redis):
                 {sensor_data[b'TC_WATER_In'].decode()},
                 {sensor_data[b'TC_WATER_Out'].decode()},
                 {sensor_data[b'TC_CHAM'].decode()},
-                {sensor_data[b'FT_Thrust'].decode()};"""
+                {sensor_data[b'FT_Thrust'].decode()} );"""
                 print("insert command generated")
                 print(insert_string)
                 
