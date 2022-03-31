@@ -141,7 +141,7 @@ def Store(redis):
             (label, data) = data[0]
             print("new data found")
         
-        time.sleep(1000)
+        time.sleep(3)
 
 
 @app.route('/serial/storage/<action>')
