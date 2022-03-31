@@ -31,6 +31,7 @@ def run_app():
 
 def Store(redis):
     global STORING
+    print("storing?")
 
     # Connect to the sqlite3 database
     connection = sqlite3.connect('./dat/database.db')
