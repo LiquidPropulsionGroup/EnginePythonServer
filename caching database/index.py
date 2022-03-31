@@ -139,13 +139,13 @@ def caching_control(action):
     print('ACTION START')
     #ser.flushInput()
     with lock:
-        CACHING = True
+      CACHING = True
     return 'Caching started'
   
   if action == 'CLOSE':
     print('ACTION STOP')
     with lock:
-        CACHING = False
+      CACHING = False
     return 'Caching closed'
 
   return abort(404)
