@@ -1,3 +1,4 @@
+import time
 from flask import Flask, abort
 import redis as red
 import json, sys, sqlite3
@@ -124,6 +125,8 @@ def Store(redis):
             data = redis.xread({ stream_name: f'{label.decode()}' }, block = 0)
             (label, data) = data[0]
             print("new data found")
+        
+        time.sleep(1000)
 
 
 @app.route('/serial/storage/<action>')
