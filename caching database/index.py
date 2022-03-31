@@ -54,7 +54,7 @@ ser.baudrate = baudrate
 ser.port = port
 
 # Opening serial port
-ser.open()
+# ser.open()
 
 # Creating redis client
 redis = red.Redis(host='redis-database', port=6379)
@@ -138,11 +138,17 @@ def caching_control(action):
       print('Port already open. Continuing...')
     print('ACTION START')
     #ser.flushInput()
-    Cache()
+    global CACHING
+    with lock:
+        CACHING = True
+    return 'Caching started'
   
   if action == 'CLOSE':
     # this might be a bad way to stop the program, causes shitpant
-    ser.close()
+    # ser.close()
+    global CACHING
+    with lock:
+        CACHING = False
     return 'Caching closed'
 
   return abort(404)
