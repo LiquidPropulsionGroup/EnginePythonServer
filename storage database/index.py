@@ -74,13 +74,13 @@ def Store(redis):
     # Use XREAD to get the first set of data
     data = redis.xread({ stream_name: f'{label.decode()}' }, block = 0)
     (label, data) = data[0]
-    #print(label)
-    #print(data)
+    print(label)
+    print(data)
 
     # Entering the storage loop for as long as operation is true
     while True:
         # Empty while loop waiting for STORING = true
-        print("looping")
+        print("looping", flush=True)
         if STORING:
             print("storing")
             for sensor_reading in data:
