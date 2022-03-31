@@ -90,6 +90,7 @@ def Cache(ser, redis):
 
   while True:
     # Empty loop waiting for CACHING = True
+    print(CACHING)
     if CACHING:
       print("LOOPING")
       # Flush the input buffer to get fresh data
