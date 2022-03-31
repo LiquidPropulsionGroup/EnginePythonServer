@@ -87,14 +87,9 @@ def Cache(ser, redis):
 
   # Execution control variable is global
   global CACHING
-  count = 0
 
   while ser.is_open == True:
     # Empty loop waiting for CACHING = True
-    count = count + 1
-    if (count >= 500):
-      print(CACHING)
-      count = 0
     
     if CACHING:
       print("LOOPING")
