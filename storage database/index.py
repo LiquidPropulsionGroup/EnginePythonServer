@@ -68,14 +68,14 @@ def Store(redis):
     # Get the first item in the stream to use XREAD
     data = redis.xrange(stream_name, count=1)
     (label, data) = data[0]
-    print(label)
-    print(data)
+    # print(label)
+    # print(data)
 
     # Use XREAD to get the first set of data
     data = redis.xread({ stream_name: f'{label.decode()}' }, block = 0)
     (label, data) = data[0]
-    print(label)
-    print(data)
+    # print(label)
+    # print(data)
 
     # Entering the storage loop for as long as operation is true
     while True:
@@ -91,24 +91,24 @@ def Store(redis):
 
                 # Split the redis timestamp using regex
                 [sensor_timestamp, multiInsertID] = re.split("-", sensor_label.decode())
-                print(sensor_timestamp)
-                print(sensor_data[b'PT_HE'].decode())
-                print(sensor_data[b'PT_Purge'].decode())
-                print(sensor_data[b'PT_Pneu'].decode())
-                print(sensor_data[b'PT_FUEL_PV'].decode())
-                print(sensor_data[b'PT_LOX_PV'].decode())
-                print(sensor_data[b'PT_CHAM'].decode())
-                print(sensor_data[b'TC_FUEL_PV'].decode())
-                print(sensor_data[b'TC_LOX_PV'].decode())
-                print(sensor_data[b'TC_LOX_Valve_Main'].decode())
-                print(sensor_data[b'TC_WATER_In'].decode())
-                print(sensor_data[b'TC_WATER_Out'].decode())
-                print(sensor_data[b'TC_CHAM'].decode())
-                print(sensor_data[b'FT_Thrust'].decode())
+                # print(sensor_timestamp)
+                # print(sensor_data[b'PT_HE'].decode())
+                # print(sensor_data[b'PT_Purge'].decode())
+                # print(sensor_data[b'PT_Pneu'].decode())
+                # print(sensor_data[b'PT_FUEL_PV'].decode())
+                # print(sensor_data[b'PT_LOX_PV'].decode())
+                # print(sensor_data[b'PT_CHAM'].decode())
+                # print(sensor_data[b'TC_FUEL_PV'].decode())
+                # print(sensor_data[b'TC_LOX_PV'].decode())
+                # print(sensor_data[b'TC_LOX_Valve_Main'].decode())
+                # print(sensor_data[b'TC_WATER_In'].decode())
+                # print(sensor_data[b'TC_WATER_Out'].decode())
+                # print(sensor_data[b'TC_CHAM'].decode())
+                # print(sensor_data[b'FT_Thrust'].decode())
 
 
                 # Write the SQL command to add the data to the .db
-                insert_string = f""" INSERT INTO {stream_name} (PT_HE, PT_Purge, PT_Pneu, PT_FUEL_PV, PT_LOX_PV, PT_CHAM, TC_FUEL_PV, TC_LOX_PV, TC_LOX_Valve_Main, TC_WATER_In, TC_WATER_Out, FT_Thrust) VALUES 
+                insert_string = f""" INSERT INTO 'new_db' (PT_HE, PT_Purge, PT_Pneu, PT_FUEL_PV, PT_LOX_PV, PT_CHAM, TC_FUEL_PV, TC_LOX_PV, TC_LOX_Valve_Main, TC_WATER_In, TC_WATER_Out, FT_Thrust) VALUES 
                 ( {sensor_timestamp[0]},
                 {sensor_data[b'PT_HE'].decode()},
                 {sensor_data[b'PT_Purge'].decode()},
