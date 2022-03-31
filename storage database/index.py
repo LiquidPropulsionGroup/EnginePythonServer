@@ -79,8 +79,9 @@ def Store(redis):
     # Entering the storage loop for as long as operation is true
     while True:
         # Empty while loop waiting for STORING = true
+        print("looping")
         if STORING:
-            print("looping...")
+            print("storing")
             for sensor_reading in data:
                 # Separate the tuples
                 (sensor_label, sensor_data) = sensor_reading
