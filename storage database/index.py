@@ -2,6 +2,7 @@ from flask import Flask, abort
 import redis as red
 import json, sys, sqlite3
 import re
+import threading
 
 ####* User defined variables START *####
 try:
@@ -15,11 +16,21 @@ else:
 # Flask app settings
 app = Flask(__name__)
 
+# Lock a thread
+lock = threading.Lock()
+serial_lock = threading.Lock()
+
+# Flow control variable
+STORING = False
+
 # Creating redis client
 redis = red.Redis(host='redis-database', port=6379)
 
-def Store():
-    global operation
+def run_app():
+    app.run(debug=False, host='0.0.0.0', port=3004, threaded=True)
+
+def Store(redis):
+    global STORING
 
     # Connect to the sqlite3 database
     connection = sqlite3.connect('./dat/database.db')
@@ -65,76 +76,80 @@ def Store():
     #print(data)
 
     # Entering the storage loop for as long as operation is true
-    while operation == True:
-        print("looping...")
-        for sensor_reading in data:
-            # Separate the tuples
-            (sensor_label, sensor_data) = sensor_reading
-            #print(sensor_label)
-            #print(sensor_data)
+    while True:
+        # Empty while loop waiting for STORING = true
+        if STORING:
+            print("looping...")
+            for sensor_reading in data:
+                # Separate the tuples
+                (sensor_label, sensor_data) = sensor_reading
+                #print(sensor_label)
+                #print(sensor_data)
 
-            # Split the redis timestamp using regex
-            sensor_timestamp = re.split("-", sensor_label.decode())
-            print(sensor_timestamp)
+                # Split the redis timestamp using regex
+                sensor_timestamp = re.split("-", sensor_label.decode())
+                print(sensor_timestamp)
 
-            # Write the SQL command to add the data to the .db
-            insert_string = f""" INSERT INTO {stream_name} VALUES 
-            ( {sensor_timestamp[0]},
-            {sensor_data[b'PT_HE'].decode()},
-            {sensor_data[b'PT_Purge'].decode()},
-            {sensor_data[b'PT_Pneu'].decode()},
-            {sensor_data[b'PT_FUEL_PV'].decode()},
-            {sensor_data[b'PT_LOX_PV'].decode()},
-            {sensor_data[b'PT_CHAM'].decode()},
-            {sensor_data[b'TC_FUEL_PV'].decode()},
-            {sensor_data[b'TC_LOX_PV'].decode()},
-            {sensor_data[b'TC_LOX_Valve_Main'].decode()},
-            {sensor_data[b'TC_WATER_In'].decode()},
-            {sensor_data[b'TC_WATER_Out'].decode()},
-            {sensor_data[b'TC_CHAM'].decode()},
-            {sensor_data[b'FT_Thrust'].decode()};"""
-            print("insert command generated")
+                # Write the SQL command to add the data to the .db
+                insert_string = f""" INSERT INTO {stream_name} VALUES 
+                ( {sensor_timestamp[0]},
+                {sensor_data[b'PT_HE'].decode()},
+                {sensor_data[b'PT_Purge'].decode()},
+                {sensor_data[b'PT_Pneu'].decode()},
+                {sensor_data[b'PT_FUEL_PV'].decode()},
+                {sensor_data[b'PT_LOX_PV'].decode()},
+                {sensor_data[b'PT_CHAM'].decode()},
+                {sensor_data[b'TC_FUEL_PV'].decode()},
+                {sensor_data[b'TC_LOX_PV'].decode()},
+                {sensor_data[b'TC_LOX_Valve_Main'].decode()},
+                {sensor_data[b'TC_WATER_In'].decode()},
+                {sensor_data[b'TC_WATER_Out'].decode()},
+                {sensor_data[b'TC_CHAM'].decode()},
+                {sensor_data[b'FT_Thrust'].decode()};"""
+                print("insert command generated")
 
-            # Execute the SQL command
-            cursor.execute(insert_string)
-            print("insert command executed")
+                # Execute the SQL command
+                cursor.execute(insert_string)
+                print("insert command executed")
 
-            # Commit changes
-            connection.commit()
-            print("insert committed")
+                # Commit changes
+                connection.commit()
+                print("insert committed")
 
-        # Find the next set of redis data
-        data = redis.xrange(stream_name, min=f'{sensor_label.decode()}', count=1)
-        (label, data) = data[0]
-        data = redis.xread({ stream_name: f'{label.decode()}' }, block = 0)
-        (label, data) = data[0]
-        print("new data found")
+            # Find the next set of redis data
+            data = redis.xrange(stream_name, min=f'{sensor_label.decode()}', count=1)
+            (label, data) = data[0]
+            data = redis.xread({ stream_name: f'{label.decode()}' }, block = 0)
+            (label, data) = data[0]
+            print("new data found")
 
 
 @app.route('/serial/storage/<action>')
 def storage_control(action):
+    global STORING
     if action == 'START':
         print('STORAGE START')
-        global operation
-        operation = True
 
         # Start the infinite loop of pulling and storing data
-        Store()
+        with lock:
+            STORING = True
 
         # This should never execute, it would mean storage has crashed
-        return 'Storage crashed'
+        return 'Storage started'
 
     if action == 'CLOSE':
-        operation = False
-
+        # Stop the storage loop
+        with lock:
+            STORING = True
+        
         # Indicate storage stopped
         return 'Storage closed'
 
     return abort(404)
 
-# Flow control variable
-global operation
-operation = False
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3004, threaded=True)
+    # Threading the routes
+    flaskApp_thread = threading.Thread(target=run_app)
+    storing_thread = threading.Thread(target=Store, args=[redis])
+    flaskApp_thread.start()
+    storing_thread.start()

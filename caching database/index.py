@@ -54,7 +54,7 @@ ser.baudrate = baudrate
 ser.port = port
 
 # Opening serial port
-# ser.open()
+ser.open()
 
 # Creating redis client
 redis = red.Redis(host='redis-database', port=6379)
