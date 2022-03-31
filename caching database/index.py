@@ -87,10 +87,14 @@ def Cache(ser, redis):
 
   # Execution control variable is global
   global CACHING
+  count = 0
 
   while True:
     # Empty loop waiting for CACHING = True
-    print(CACHING)
+    count = count + 1
+    if (count >= 50):
+      print(CACHING)
+    
     if CACHING:
       print("LOOPING")
       # Flush the input buffer to get fresh data
