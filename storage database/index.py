@@ -90,7 +90,7 @@ def Store(redis):
                 print(sensor_data)
 
                 # Split the redis timestamp using regex
-                sensor_timestamp = re.split("-", sensor_label.decode())
+                [sensor_timestamp, multiInsertID] = re.split("-", sensor_label.decode())
                 print(sensor_timestamp)
                 print(sensor_data[b'PT_HE'].decode())
                 print(sensor_data[b'PT_Purge'].decode())
