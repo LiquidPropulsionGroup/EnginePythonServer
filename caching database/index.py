@@ -2,6 +2,7 @@ from flask import Flask, abort
 import redis as red
 import serial, serial.tools.list_ports
 import json, struct, sys
+import threading
 
 ####* User defined variables START *####
 try:
@@ -40,6 +41,13 @@ else:
 # Flask app settings
 app = Flask(__name__)
 
+# Lock a thread
+lock = threading.Lock()
+serial_lock = threading.Lock()
+
+# Loop control variable
+CACHING = False
+
 # Serial port settings
 ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
@@ -70,47 +78,56 @@ Keys = [
         "FT_Thrust"
       ]
 
-def Cache():
+def run_app():
+  app.run(debug=False, host='0.0.0.0', port=3002, threaded=True)
+
+def Cache(ser, redis):
     # Function for extracting uint16_t (2 bytes) data from the serial stream
     # Runs continuously while serial communication is present
 
-    # Flush the input buffer to get fresh data
-    ser.reset_input_buffer()
+    # Execution control variable is global
+    global CACHING
 
-    while ser.is_open == True:
-      # Extract the next sequence of serial data until the terminator/starter packets
-      serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
-      
-      # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 34
+    while True:
+      # Empty loop waiting for CACHING = True
+      if CACHING:
+        print("LOOPING")
+        # Flush the input buffer to get fresh data
+        ser.reset_input_buffer()
 
-      if len(serial_buffer) == BUFFER_LENGTH:
-        # Unpack the struct that is the serial message
-        # Arduino is little-endian
-        unpack_data = struct.unpack('<h h h h h h h h h h h h h d', serial_buffer)
-        # Build the JSON with struct method
-        data = {}
-        for item in range(len(Keys)):
-          data[Keys[item]] = str(unpack_data[item])
-        #print(data)
-        json_data = json.dumps(data)
-        json_data = json.loads(json_data)		# Weird fix?
+        while ser.is_open == True:
+          # Extract the next sequence of serial data until the terminator/starter packets
+          serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+          
+          # Verify that the buffer is of the correct length
+          BUFFER_LENGTH = 34
 
-        # Then perform CRC TODO
+          if len(serial_buffer) == BUFFER_LENGTH:
+            # Unpack the struct that is the serial message
+            # Arduino is little-endian
+            unpack_data = struct.unpack('<h h h h h h h h h h h h h d', serial_buffer)
+            # Build the JSON with struct method
+            data = {}
+            for item in range(len(Keys)):
+              data[Keys[item]] = str(unpack_data[item])
+            #print(data)
+            json_data = json.dumps(data)
+            json_data = json.loads(json_data)		# Weird fix?
 
-        # Insert to redis
-        if json_data:
-          redis.xadd(stream_name, json_data)
-          # print('Added to redis stream')        
+            # Then perform CRC TODO
 
-        
-      else:
-        # If it is incorrect, discard the read and find another terminator
-        print("=================")
-        print(len(serial_buffer))
-        print(serial_buffer)
-        print("WRONG LENGTH - DISCARD")
-    return 'Caching done'
+            # Insert to redis
+            if json_data:
+              redis.xadd(stream_name, json_data)
+              # print('Added to redis stream')        
+
+            
+          else:
+            # If it is incorrect, discard the read and find another terminator
+            print("=================")
+            print(len(serial_buffer))
+            print(serial_buffer)
+            print("WRONG LENGTH - DISCARD")
 
 @app.route('/serial/caching/<action>')
 def caching_control(action):
@@ -132,4 +149,8 @@ def caching_control(action):
   return abort(404)
 
 if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=3002, threaded=True)
+      # Threading the routes
+      flaskApp_thread = threading.Thread(target=run_app)
+      caching_thread = threading.Thread(target=Cache, args=[ser, redis])
+      flaskApp_thread.start()
+      caching_thread.start()
