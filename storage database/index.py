@@ -138,9 +138,10 @@ def storage_control(action):
         return 'Storage started'
 
     if action == 'CLOSE':
+        print('STORAGE CLOSE')
         # Stop the storage loop
         with lock:
-            STORING = True
+            STORING = False
         
         # Indicate storage stopped
         return 'Storage closed'
