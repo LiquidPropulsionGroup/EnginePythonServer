@@ -79,9 +79,9 @@ Keys = [
       ]
 
 def run_app():
-  app.run(host='0.0.0.0', port=3002, threaded=True)
+  app.run(debug=False, host='0.0.0.0', port=3002, threaded=True)
 
-def Cache():
+def Cache(ser, redis):
     # Function for extracting uint16_t (2 bytes) data from the serial stream
     # Runs continuously while serial communication is present
 
@@ -150,6 +150,6 @@ def caching_control(action):
 if __name__ == '__main__':
       # Threading the routes
       flaskApp_thread = threading.Thread(target=run_app)
-      caching_thread = threading.Thread(target=Cache, args=[ser, redis, caching_stream_name, valve_stream_name])
+      caching_thread = threading.Thread(target=Cache, args=[ser, redis])
       flaskApp_thread.start()
       caching_thread.start()
