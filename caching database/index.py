@@ -143,6 +143,7 @@ def caching_control(action):
     return 'Caching started'
   
   if action == 'CLOSE':
+    print('ACTION STOP')
     with lock:
         CACHING = False
     return 'Caching closed'
