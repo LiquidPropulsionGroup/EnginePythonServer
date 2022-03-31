@@ -124,7 +124,8 @@ def Store(redis):
                 {sensor_data[b'TC_CHAM'].decode()},
                 {sensor_data[b'FT_Thrust'].decode()};"""
                 print("insert command generated")
-
+                print(insert_string)
+                
                 # Execute the SQL command
                 cursor.execute(insert_string)
                 print("insert command executed")
