@@ -170,11 +170,7 @@ def storage_control(action):
 
 if __name__ == '__main__':
     # Threading the routes
-    print("Is command callable?")
-    command = getattr(redis, "replicaof", None)
-    print(callable(command))
-
-    # flaskApp_thread = threading.Thread(target=run_app)
-    # storing_thread = threading.Thread(target=Store, args=[redis])
-    # flaskApp_thread.start()
-    # storing_thread.start()
+    flaskApp_thread = threading.Thread(target=run_app)
+    storing_thread = threading.Thread(target=Store, args=[redis])
+    flaskApp_thread.start()
+    storing_thread.start()
