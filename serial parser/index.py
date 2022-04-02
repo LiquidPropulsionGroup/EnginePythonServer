@@ -70,11 +70,11 @@ ser.open()
 Sensor_Keys = [
     "Timestamp",
     "PT_HE",
-    "PT_Purge",
+    # "PT_Purge",
     "PT_Pneu",
     "PT_FUEL_PV",
     "PT_LOX_PV",
-    #"PT_FUEL_INJ",
+    "PT_FUEL_INJ",
     "PT_CHAM",
     "TC_FUEL_PV",
     "TC_LOX_PV",

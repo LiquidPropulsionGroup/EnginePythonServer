@@ -47,10 +47,10 @@ def Store(redis):
     create_table = f""" CREATE TABLE IF NOT EXISTS {stream_name}
     ( Timestamp varchar(255),
     PT_HE varchar(255),
-    PT_Purge varchar(255),
     PT_Pneu varchar(255),
     PT_FUEL_PV varchar(255),
     PT_LOX_PV varchar(255),
+    PT_FUEL_INJ varchar(255),
     PT_CHAM varchar(255),
     TC_FUEL_PV varchar(255), 
     TC_LOX_PV varchar(255),
@@ -111,10 +111,10 @@ def Store(redis):
                 insert_string = f""" INSERT INTO {stream_name} (Timestamp, PT_HE, PT_Purge, PT_Pneu, PT_FUEL_PV, PT_LOX_PV, PT_CHAM, TC_FUEL_PV, TC_LOX_PV, TC_LOX_Valve_Main, TC_WATER_In, TC_WATER_Out, TC_CHAM, FT_Thrust) VALUES 
                 ( {sensor_timestamp[0]},
                 {sensor_data[b'PT_HE'].decode()},
-                {sensor_data[b'PT_Purge'].decode()},
                 {sensor_data[b'PT_Pneu'].decode()},
                 {sensor_data[b'PT_FUEL_PV'].decode()},
                 {sensor_data[b'PT_LOX_PV'].decode()},
+                {sensor_data[b'PT_FUEL_INJ'].decode()},
                 {sensor_data[b'PT_CHAM'].decode()},
                 {sensor_data[b'TC_FUEL_PV'].decode()},
                 {sensor_data[b'TC_LOX_PV'].decode()},
