@@ -4,7 +4,6 @@ import serial, serial.tools.list_ports
 import json, struct, sys
 import threading
 
-####* User defined variables START *####
 try:
     sys.argv[1]
 except IndexError:
@@ -36,7 +35,8 @@ except IndexError:
     stream_name = 'sensor_stream'
 else:
     stream_name = sys.argv[3]
-####! User defined variables END !####
+
+eventDB_name = 'event_stream'
 
 # Flask app settings
 app = Flask(__name__)
@@ -116,7 +116,7 @@ def Cache(ser, redis):
 
         # Then perform CRC TODO
 
-        # Insert to redis
+        # Insert data to redis
         if json_data:
           redis.xadd(stream_name, json_data)
           # print('Added to redis stream')        
@@ -132,15 +132,21 @@ def Cache(ser, redis):
 def caching_control(action):
   global CACHING
   if action == 'START':
+    # Check if the serial port is open
     try:
       ser.open()
     except serial.serialutil.SerialException:
       print('Port already open. Continuing...')
     print('ACTION START')
     #ser.flushInput()
+
+    # Change the flow control variable value
     with lock:
       CACHING = True
     return 'Caching started'
+
+    # Insert event into events database
+    # redis.xadd(event_stream, 'caching data')
   
   if action == 'CLOSE':
     print('ACTION STOP')

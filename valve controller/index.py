@@ -38,6 +38,8 @@ else:
     stream_name = sys.argv[3]
 ####! User defined variables END !####
 
+eventDB_name = 'event_stream'
+
 # Serial port settings
 ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
@@ -119,6 +121,8 @@ def valve_update():
     # Send the instruction message
     ser.write(instruction)
     print(instruction)
+
+    redis.xadd(eventDB_name, 'POST')
     
   
   if request.method == 'GET':
@@ -131,6 +135,8 @@ def valve_update():
     status_request += b'\x3E'
     ser.write(status_request)
     print(status_request)
+    
+    redis.xadd(eventDB_name, 'POST')
 
   #ser.reset_input_buffer()
   print("AWAIT RESPONSE")
