@@ -135,8 +135,9 @@ def valve_update():
     status_request += b'\x3E'
     ser.write(status_request)
     print(status_request)
-    
-    redis.xadd(eventDB_name, 'POST')
+
+    insert = ['get']
+    redis.xadd(eventDB_name, insert)
 
   #ser.reset_input_buffer()
   print("AWAIT RESPONSE")
