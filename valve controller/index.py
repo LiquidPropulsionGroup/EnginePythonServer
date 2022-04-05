@@ -64,6 +64,15 @@ KeyList = [
   "LOX_Purge",
 ]
 
+def convert(obj):
+    if isinstance(obj, bool):
+        return str(obj).lower()
+    if isinstance(obj, (list, tuple)):
+        return [convert(item) for item in obj]
+    if isinstance(obj, dict):
+        return {convert(key):convert(value) for key, value in obj.items()}
+    return obj
+
 def compose_pair(key, state, instruction):
   if key == KeyList[0]:
     leadByte = b'\x53'    # FUEL_Pres(S)
@@ -87,8 +96,6 @@ def compose_pair(key, state, instruction):
 
   instruction += leadByte + stateByte
   return instruction
-  
-
 
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
@@ -123,8 +130,7 @@ def valve_update():
     print(instruction)
 
     # Generate event message dict
-    message = json.dumps(message)
-    message = json.loads(message)
+    message = json.dumps(convert(message))
     print(message)
     event_data = {'EVENT':'POST'}
     event_data = {**event_data, **message}
