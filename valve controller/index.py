@@ -122,8 +122,8 @@ def valve_update():
     ser.write(instruction)
     print(instruction)
 
-    insert = {'event':'POST'}
-    redis.xadd(eventDB_name, insert)
+    # Generate event message dict
+    eventType = 'POST'
     
   
   if request.method == 'GET':
@@ -137,8 +137,9 @@ def valve_update():
     ser.write(status_request)
     print(status_request)
 
-    insert = {'event':'GET'}
-    redis.xadd(eventDB_name, insert)
+    # Generate event message dict
+    eventType = 'GET'
+    
 
   #ser.reset_input_buffer()
   print("AWAIT RESPONSE")
@@ -165,6 +166,8 @@ def valve_update():
 
     # Insert to redis
     if json_data:
+      event_data = {'EVENT':eventType, 'STATE':json_data}
+      redis.xadd(eventDB_name, event_data)
       redis.xadd(stream_name, json_data)
       # print('Added to redis stream')
       print("Reply:")
