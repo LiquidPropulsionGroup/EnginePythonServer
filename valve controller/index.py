@@ -123,7 +123,7 @@ def valve_update():
     print(instruction)
 
     insert = {'event':'POST'}
-    redis.xadd(eventDB_name, 'POST')
+    redis.xadd(eventDB_name, insert)
     
   
   if request.method == 'GET':
