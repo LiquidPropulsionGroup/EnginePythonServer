@@ -125,7 +125,7 @@ def valve_update():
     # Generate event message dict
     eventType = 'POST'
     event_data = {'EVENT':'POST'}
-    event_data = {**event_data, **message}
+    event_data = {**event_data, **json.loads(json.dumps(message))}
     redis.xadd(eventDB_name,event_data)
     
   
