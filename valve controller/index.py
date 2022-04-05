@@ -76,7 +76,7 @@ def convert(obj):
 def padOut():
     # Create empty elements
     padding = {}
-    for n in KeyList:
+    for n in len(KeyList):
           name = KeyList[n]
           padding = {**padding, **{name:'?'}}
     return padding
