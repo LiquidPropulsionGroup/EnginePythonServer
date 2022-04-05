@@ -122,6 +122,7 @@ def valve_update():
     ser.write(instruction)
     print(instruction)
 
+    insert = {'event':'POST'}
     redis.xadd(eventDB_name, 'POST')
     
   
@@ -136,7 +137,7 @@ def valve_update():
     ser.write(status_request)
     print(status_request)
 
-    insert = ['get']
+    insert = {'event':'GET'}
     redis.xadd(eventDB_name, insert)
 
   #ser.reset_input_buffer()
