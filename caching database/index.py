@@ -54,7 +54,7 @@ def padOut():
     padding = {}
     for n in range(len(KeyList)):
           name = KeyList[n]
-          padding = {**padding, **{name:'?'}}
+          padding = {**padding, **{name:'-'}}
     return padding
 
 # Flask app settings
