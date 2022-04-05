@@ -131,7 +131,6 @@ def valve_update():
 
     # Generate event message dict
     message = json.loads(json.dumps(convert(message)))
-    message = json.dumps(message)
     print(message)
     event_data = {'EVENT':'POST'}
     event_data = {**event_data, **message}
