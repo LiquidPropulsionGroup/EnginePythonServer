@@ -76,8 +76,8 @@ def convert(obj):
 def padOut():
     # Create empty elements
     padding = {}
-    for n in range(7):
-          padding = {**padding, **{Keylist[n]:'?'}}
+    for n in KeyList:
+          padding = {**padding, **{KeyList[n]:'?'}}
     return padding
 
 def compose_pair(key, state, instruction):
