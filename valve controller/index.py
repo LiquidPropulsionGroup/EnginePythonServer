@@ -77,7 +77,8 @@ def padOut():
     # Create empty elements
     padding = {}
     for n in KeyList:
-          padding = {**padding, **{KeyList[n]:'?'}}
+          name = KeyList[n]
+          padding = {**padding, **{name:'?'}}
     return padding
 
 def compose_pair(key, state, instruction):
