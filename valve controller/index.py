@@ -168,7 +168,7 @@ def valve_update():
     if json_data:
       print
       event_data = {'EVENT':eventType}
-      event_data = merge(event_data,json_data)
+      event_data = {**event_data, **json_data}
       redis.xadd(eventDB_name, event_data)
       redis.xadd(stream_name, json_data)
       # print('Added to redis stream')
