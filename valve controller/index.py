@@ -124,6 +124,8 @@ def valve_update():
 
     # Generate event message dict
     eventType = 'POST'
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
     
   
   if request.method == 'GET':
@@ -167,7 +169,7 @@ def valve_update():
     # Insert to redis
     if json_data:
       print
-      event_data = {'EVENT':eventType}
+      event_data = {'EVENT':'RESPONSE'}
       event_data = {**event_data, **json_data}
       redis.xadd(eventDB_name, event_data)
       redis.xadd(stream_name, json_data)
