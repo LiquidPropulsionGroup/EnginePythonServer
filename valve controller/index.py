@@ -73,6 +73,13 @@ def convert(obj):
         return {convert(key):convert(value) for key, value in obj.items()}
     return obj
 
+def padOut():
+    # Create empty elements
+    padding = {}
+    for n in range(7):
+          padding = {**padding, **{' ':' '}}
+    return padding
+
 def compose_pair(key, state, instruction):
   if key == KeyList[0]:
     leadByte = b'\x53'    # FUEL_Pres(S)
@@ -149,7 +156,11 @@ def valve_update():
     print(status_request)
 
     # Generate event message dict
-    eventType = 'GET'
+    message = padOut()
+    print(message)
+    event_data = {'EVENT':'POLL'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
     
 
   #ser.reset_input_buffer()
