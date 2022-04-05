@@ -189,6 +189,28 @@ def caching_control(action):
 
   return abort(404)
 
+@app.route('/event/test/<action>')
+def testFlag(action):
+  # Handles inserting test START and END flags to the event stream
+  if action == 'START':
+    message=padOut()
+    event_data = {'EVENT':'TEST START'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+    return 'Start marker inserted'
+
+  if action == 'END':
+    message=padOut()
+    event_data = {'EVENT':'TEST END'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+    return 'End marker inserted'
+
+  return abort(404)
+
+  
+
+
 if __name__ == '__main__':
       # Threading the routes
       flaskApp_thread = threading.Thread(target=run_app)
