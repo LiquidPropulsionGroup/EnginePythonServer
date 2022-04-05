@@ -166,9 +166,9 @@ def valve_update():
 
     # Insert to redis
     if json_data:
-      event_data = {'EVENT':eventType, 'STATE':json_data}
-      event_data = json.dumps(event_data)
-      event_data = json.loads(event_data)
+      print
+      event_data = {'EVENT':eventType}
+      event_data = merge(event_data,json_data)
       redis.xadd(eventDB_name, event_data)
       redis.xadd(stream_name, json_data)
       # print('Added to redis stream')
