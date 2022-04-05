@@ -38,6 +38,25 @@ else:
 
 eventDB_name = 'event_stream'
 
+# Keylist
+KeyList = [
+  "FUEL_Press",
+  "LOX_Press",
+  "FUEL_Vent",
+  "LOX_Vent",
+  "MAIN",
+  "FUEL_Purge",
+  "LOX_Purge",
+]
+
+def padOut():
+    # Create empty elements
+    padding = {}
+    for n in range(len(KeyList)):
+          name = KeyList[n]
+          padding = {**padding, **{name:'?'}}
+    return padding
+
 # Flask app settings
 app = Flask(__name__)
 
@@ -143,6 +162,13 @@ def caching_control(action):
     # Change the flow control variable value
     with lock:
       CACHING = True
+
+    # Generate event message dict
+    message=padOut()
+    event_data = {'EVENT':'START DATA COLLECT'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+    
     return 'Caching started'
 
     # Insert event into events database
@@ -152,6 +178,13 @@ def caching_control(action):
     print('ACTION STOP')
     with lock:
       CACHING = False
+
+    # Generate event message dict
+    message=padOut()
+    event_data = {'EVENT':'STOP DATA COLLECT'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+
     return 'Caching closed'
 
   return abort(404)
