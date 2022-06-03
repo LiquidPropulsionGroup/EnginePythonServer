@@ -119,12 +119,12 @@ def Cache(ser, redis):
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
         
       # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 34
+      BUFFER_LENGTH = 36
 
       if len(serial_buffer) == BUFFER_LENGTH:
         # Unpack the struct that is the serial message
         # Arduino is little-endian
-        unpack_data = struct.unpack('<h h h h h h h h h h h h h d', serial_buffer)
+        unpack_data = struct.unpack('<h h h h h h h h h h h h h f d', serial_buffer)
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
