@@ -130,6 +130,8 @@ def Cache(ser, redis):
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
+          print(Keys)
+          print(Keys[item])
           data[Keys[item]] = str(unpack_data[item])
         print(data)
         json_data = json.dumps(data)
