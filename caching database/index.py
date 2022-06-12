@@ -122,14 +122,16 @@ def Cache(ser, redis):
       BUFFER_LENGTH = 36
 
       if len(serial_buffer) == BUFFER_LENGTH:
+        print('LENGTH MATCH')
+        print(serial_buffer)
         # Unpack the struct that is the serial message
         # Arduino is little-endian
-        unpack_data = struct.unpack('<h h h h h h h h h h h h h f d', serial_buffer)
+        unpack_data = struct.unpack('<h h h h h h h h h h h h f d', serial_buffer)
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
           data[Keys[item]] = str(unpack_data[item])
-        #print(data)
+        print(data)
         json_data = json.dumps(data)
         json_data = json.loads(json_data)		# Weird fix?
 
@@ -138,7 +140,7 @@ def Cache(ser, redis):
         # Insert data to redis
         if json_data:
           redis.xadd(stream_name, json_data)
-          # print('Added to redis stream')        
+          print('Added to redis stream')        
           
       else:
         # If it is incorrect, discard the read and find another terminator
