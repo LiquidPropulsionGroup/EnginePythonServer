@@ -132,7 +132,7 @@ def Cache(ser, redis):
         for item in range(len(Keys)):
           # Because Thrust data is float-typed, trim the excess decimal places
           if Keys[item] == "FT_Thrust":
-            data[Keys[item]] = str(round(unpack_data[item]), 1)
+            data[Keys[item]] = str(round(unpack_data[item], 1))
           else:
             data[Keys[item]] = str(unpack_data[item])
         print(data)
