@@ -130,9 +130,11 @@ def Cache(ser, redis):
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
-          print(Keys)
-          print(Keys[item])
-          data[Keys[item]] = str(unpack_data[item])
+          # Because Thrust data is float-typed, trim the excess decimal places
+          if Keys[item] == "FT_Thrust":
+            data[Keys[item]] = str(round(unpack_data[item]), 1)
+          else:
+            data[Keys[item]] = str(unpack_data[item])
         print(data)
         json_data = json.dumps(data)
         json_data = json.loads(json_data)		# Weird fix?
