@@ -130,6 +130,7 @@ def igniter_on():
 # One URL to handle ignition OFF
 @app.route('/serial/valve/extinguish', methods = ['GET'])
 def igniter_off():
+  ser.reset_output_buffer
   print("EXTINGUISH ROUTE REACHED", flush=True)
   try:
     ser.open()
@@ -152,6 +153,7 @@ def igniter_off():
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
+  ser.reset_output_buffer
   print("ROUTE REACHED", flush=True) # WEIRD FIX ALERT
   #print("???")
   try:
