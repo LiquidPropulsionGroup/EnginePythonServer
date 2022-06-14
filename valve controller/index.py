@@ -105,6 +105,40 @@ def compose_pair(key, state, instruction):
   instruction += leadByte + stateByte
   return instruction
 
+# One URL to handle ignition ON
+@app.route('/serial/valve/ignite', methods = ['POST'])
+def igniter_on():
+  print("IGNITER ROUTE REACHED", flush=True)
+  try:
+    ser.open()
+  except:
+    print("Already open...")
+  
+  # Compose the bytecode message
+  # In ascii, the command for igniter on is '<!!!!!!!!!!!!!+>'
+  instruction = b'\x3C'     # Starter character '<'
+  for n in range(13):
+    instruction += b'\x21'  # 13 '!'
+  instruction += b'\x2B'    # Indicator character '+'
+  instruction += b'\x3E'    # Terminator character '>'
+
+# One URL to handle ignition OFF
+@app.route('/serial/valve/extinguish', methods = ['POST'])
+def igniter_on():
+  print("EXTINGUISH ROUTE REACHED", flush=True)
+  try:
+    ser.open()
+  except:
+    print("Already open...")
+  
+  # Compose the bytecode message
+  # In ascii, the command for igniter on is '<!!!!!!!!!!!!!->'
+  instruction = b'\x3C'     # Starter character '<'
+  for n in range(13):
+    instruction += b'\x21'  # 13 '!'
+  instruction += b'\x2D'    # Indicator character '-'
+  instruction += b'\x3E'    # Terminator character '>'
+
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
 def valve_update():
