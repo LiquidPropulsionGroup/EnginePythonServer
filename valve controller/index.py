@@ -106,7 +106,7 @@ def compose_pair(key, state, instruction):
   return instruction
 
 # One URL to handle ignition ON
-@app.route('/serial/valve/ignite', methods = ['POST'])
+@app.route('/serial/valve/ignite', methods = ['GET'])
 def igniter_on():
   print("IGNITER ROUTE REACHED", flush=True)
   try:
@@ -123,7 +123,7 @@ def igniter_on():
   instruction += b'\x3E'    # Terminator character '>'
 
 # One URL to handle ignition OFF
-@app.route('/serial/valve/extinguish', methods = ['POST'])
+@app.route('/serial/valve/extinguish', methods = ['GET'])
 def igniter_off():
   print("EXTINGUISH ROUTE REACHED", flush=True)
   try:
