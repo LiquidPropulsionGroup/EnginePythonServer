@@ -44,6 +44,7 @@ eventDB_name = 'event_stream'
 ser = serial.Serial(timeout=1)
 ser.baudrate = baudrate
 ser.port = port
+ser.open()
 
 # Flask app settings
 app = Flask(__name__)
