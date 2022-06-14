@@ -124,7 +124,7 @@ def igniter_on():
 
 # One URL to handle ignition OFF
 @app.route('/serial/valve/extinguish', methods = ['POST'])
-def igniter_on():
+def igniter_off():
   print("EXTINGUISH ROUTE REACHED", flush=True)
   try:
     ser.open()
