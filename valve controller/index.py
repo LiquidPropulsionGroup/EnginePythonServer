@@ -122,6 +122,8 @@ def igniter_on():
   instruction += b'\x2B'    # Indicator character '+'
   instruction += b'\x3E'    # Terminator character '>'
 
+  return 'Ignited'
+
 # One URL to handle ignition OFF
 @app.route('/serial/valve/extinguish', methods = ['GET'])
 def igniter_off():
@@ -138,6 +140,8 @@ def igniter_off():
     instruction += b'\x21'  # 13 '!'
   instruction += b'\x2D'    # Indicator character '-'
   instruction += b'\x3E'    # Terminator character '>'
+
+  return 'Extinguished'
 
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
