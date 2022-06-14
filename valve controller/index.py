@@ -122,6 +122,9 @@ def igniter_on():
   instruction += b'\x2B'    # Indicator character '+'
   instruction += b'\x3E'    # Terminator character '>'
 
+  ser.write(instruction)
+  print(instruction)
+
   return 'Ignited'
 
 # One URL to handle ignition OFF
@@ -140,6 +143,9 @@ def igniter_off():
     instruction += b'\x21'  # 13 '!'
   instruction += b'\x2D'    # Indicator character '-'
   instruction += b'\x3E'    # Terminator character '>'
+
+  ser.write(instruction)
+  print(instruction)
 
   return 'Extinguished'
 
