@@ -63,6 +63,7 @@ KeyList = [
   "MAIN",
   "FUEL_Purge",
   "LOX_Purge",
+  "Ignite"
 ]
 
 def convert(obj):
@@ -97,6 +98,8 @@ def compose_pair(key, state, instruction):
     leadByte = b'\x45'    # FUEL_Purg(E)
   elif key == KeyList[6]:
     leadByte = b'\x65'    # LOX_Purg(e)
+  elif key == KeyList[7]:
+    leadByte = b'\x49'    # (I)GNITE
 
   if state == True:
     stateByte = b'\x31'   # True (1)
@@ -105,51 +108,6 @@ def compose_pair(key, state, instruction):
 
   instruction += leadByte + stateByte
   return instruction
-
-# One URL to handle ignition ON
-@app.route('/serial/valve/ignite', methods = ['GET'])
-def igniter_on():
-  print("IGNITER ROUTE REACHED", flush=True)
-  try:
-    ser.open()
-  except:
-    print("Already open...")
-  
-  # Compose the bytecode message
-  # In ascii, the command for igniter on is '<!!!!!!!!!!!!!+>'
-  instruction = b'\x3C'     # Starter character '<'
-  for n in range(13):
-    instruction += b'\x21'  # 13 '!'
-  instruction += b'\x2B'    # Indicator character '+'
-  instruction += b'\x3E'    # Terminator character '>'
-
-  print(instruction)
-  ser.write(instruction)
-
-  return 'Ignited'
-
-# One URL to handle ignition OFF
-@app.route('/serial/valve/extinguish', methods = ['GET'])
-def igniter_off():
-  ser.reset_output_buffer
-  print("EXTINGUISH ROUTE REACHED", flush=True)
-  try:
-    ser.open()
-  except:
-    print("Already open...")
-  
-  # Compose the bytecode message
-  # In ascii, the command for igniter on is '<!!!!!!!!!!!!!->'
-  instruction = b'\x3C'     # Starter character '<'
-  for n in range(13):
-    instruction += b'\x21'  # 13 '!'
-  instruction += b'\x2D'    # Indicator character '-'
-  instruction += b'\x3E'    # Terminator character '>'
-
-  print(instruction)
-  ser.write(instruction)
-
-  return 'Extinguished'
 
 # One URL to build a complete serial message containing all desired valve states from ui
 @app.route('/serial/valve/update', methods= ['POST', 'GET'])
@@ -216,12 +174,12 @@ def valve_update():
   print(serial_buffer)
 
   # Verify that the buffer is of the correct length
-  BUFFER_LENGTH = 15
+  BUFFER_LENGTH = 16
 
   if len(serial_buffer) == BUFFER_LENGTH:
     # Unpack the struct that is the serial message
     # Arduino is little-endian
-    unpack_data = struct.unpack('<I b b b b b b b I', serial_buffer)
+    unpack_data = struct.unpack('<I b b b b b b b b I', serial_buffer)
     #print(unpack_data)
     # Build the JSON with struct method
     data = {}
