@@ -155,7 +155,7 @@ def valve_update():
     # A string of same length as the instruction message for simplicity
     status_request_char = b'\x3F'
     status_request = b'\x3C'
-    for i in range(0,14):
+    for i in range(0,16):
         status_request += status_request_char
     status_request += b'\x3E'
     ser.write(status_request)
