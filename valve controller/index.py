@@ -63,7 +63,7 @@ KeyList = [
   "MAIN",
   "FUEL_Purge",
   "LOX_Purge",
-  "Ignite"
+  "IGNITE"
 ]
 
 def convert(obj):
