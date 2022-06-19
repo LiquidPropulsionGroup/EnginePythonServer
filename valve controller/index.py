@@ -66,6 +66,9 @@ KeyList = [
   "IGNITE"
 ]
 
+# Verify that the buffer is of the correct length
+BUFFER_LENGTH = 16
+
 def convert(obj):
     if isinstance(obj, bool):
         return str(obj).lower()
@@ -151,9 +154,6 @@ def valve_update():
     
   
   if request.method == 'GET':
-    # Verify that the buffer is of the correct length
-    BUFFER_LENGTH = 16
-    
     # Generate a polling message for the Arduino
     # A string of same length as the instruction message for simplicity
     status_request_char = b'\x3F'
