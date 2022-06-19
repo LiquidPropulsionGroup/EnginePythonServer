@@ -151,11 +151,14 @@ def valve_update():
     
   
   if request.method == 'GET':
+    # Verify that the buffer is of the correct length
+    BUFFER_LENGTH = 16
+    
     # Generate a polling message for the Arduino
     # A string of same length as the instruction message for simplicity
     status_request_char = b'\x3F'
     status_request = b'\x3C'
-    for i in range(0,16):
+    for i in range(0,BUFFER_LENGTH):
         status_request += status_request_char
     status_request += b'\x3E'
     ser.write(status_request)
@@ -173,8 +176,7 @@ def valve_update():
   serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
   print(serial_buffer)
 
-  # Verify that the buffer is of the correct length
-  BUFFER_LENGTH = 16
+  
 
   if len(serial_buffer) == BUFFER_LENGTH:
     # Unpack the struct that is the serial message
