@@ -1,11 +1,8 @@
-from flask import Flask, abort
+from flask import Flask, abort, request
+from flask_cors import CORS
 import redis as red
-import serial
-import serial.tools.list_ports
-import json
-import struct
-import sys
-import threading
+import serial, serial.tools.list_ports
+import json, struct, sys, threading
 
 try:
     sys.argv[1]
@@ -179,6 +176,26 @@ def caching_control(action):
     return 'Caching closed'
 
   return abort(404)
+
+@app.route('/serial/auxdata/update', methods= ['GET'])
+def auxdata_update():
+    ser.reset_output_buffer
+    print("ROUTE REACHED", flush=True)
+
+    try:
+        ser.open()
+    except:
+        print("Already open...")
+    print(request.method)
+
+    if request.method == 'GET':
+        # Get the data from redis, only the newest value is important
+        (auxdata_label, auxdata_data) = redis.xread({ stream_name: '$'}, None, 0)
+        auxdata_timestamp = re.split("-", auxdata_label.decode())
+        auxdata_buffer = {'Timestamp': f"{auxdata_timestamp[0]}",
+                            'LOXLVL': f"{auxdata_data[b'LOXLVL'].decode()}"
+                            }
+        return auxdata_buffer
 
 if __name__ == '__main__':
       # Threading the routes
