@@ -39,6 +39,8 @@ except IndexError:
 else:
     stream_name = sys.argv[3]
 
+eventDB_name = 'event_stream'
+
 # Flask app settings
 app = Flask(__name__)
 
@@ -64,6 +66,25 @@ redis = red.Redis(host='redis-database', port=6379)
 Keys = [
     "LOXLVL"
 ]
+
+# Keylist
+KeyList = [
+  "FUEL_Press",
+  "LOX_Press",
+  "FUEL_Vent",
+  "LOX_Vent",
+  "MAIN",
+  "FUEL_Purge",
+  "LOX_Purge",
+]
+
+def padOut():
+    # Create empty elements
+    padding = {}
+    for n in range(len(KeyList)):
+          name = KeyList[n]
+          padding = {**padding, **{name:'-'}}
+    return padding
 
 def run_app():
     app.run(debug=False, host='0.0.0.0', port=3004, threaded=True)
