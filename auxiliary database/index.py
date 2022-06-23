@@ -128,6 +128,9 @@ def Cache(ser, redis):
                     json_data = json.dumps(data)
                     json_data = json.loads(json_data)		# Weird fix?
 
+                if json_data:
+                   redis.xadd(stream_name, json_data)
+                   print('Added to redis stream')
             else:
                 # If it is incorrect, discard the read and find another terminator
                 print("=================")
