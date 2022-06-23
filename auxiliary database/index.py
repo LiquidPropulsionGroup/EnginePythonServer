@@ -1,0 +1,164 @@
+from flask import Flask, abort
+import redis as red
+import serial
+import serial.tools.list_ports
+import json
+import struct
+import sys
+import threading
+
+try:
+    sys.argv[1]
+except IndexError:
+    baudrate = 115200
+else:
+    baudrate = sys.argv[1]
+
+try:
+    sys.argv[2]
+except IndexError:
+    # For use in desktop environment:
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+    com_list = []
+    for p in ports:
+          com_list.append(p.device)
+    print(com_list)
+    port = com_list[0]
+    print(port)
+
+    # For use in live environment
+    # port = '/dev/controller_LOXLVL'
+else:
+    port = sys.argv[2]
+
+try:
+    sys.argv[3]
+except IndexError:
+    stream_name = 'auxiliary_stream'
+else:
+    stream_name = sys.argv[3]
+
+# Flask app settings
+app = Flask(__name__)
+
+# Lock a thread
+lock = threading.Lock()
+serial_lock = threading.Lock()
+
+# Loop control variable
+CACHING = False
+
+# Serial port settings
+ser = serial.Serial(timeout=1)
+ser.baudrate = baudrate
+ser.port = port
+
+# Opening serial port
+ser.open()
+
+# Creating redis client
+redis = red.Redis(host='redis-database', port=6379)
+
+# JSON Key list
+Keys = [
+    "LOXLVL"
+]
+
+def run_app():
+    app.run(debug=False, host='0.0.0.0', port=3004, threaded=True)
+
+def Cache(ser, redis):
+    # Function for extracting uint16_t (2 bytes) data from the serial stream
+    # Runs continuously while serial communication is present
+
+    # Execution control variable is global
+    global CACHING
+
+    while ser.is_open == True:
+        # Empty loop waiting for CACHING = True
+
+        if CACHING:
+            print("LOOPING")
+            # Flush the input buffer to get fresh data
+            # ser.reset_input_buffer()
+
+            # Extract the next sequence of serial data until the terminator/starter packets
+            serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+
+            # Verify that the buffer is of the correct length
+            BUFFER_LENGTH = 10
+
+            if len(serial_buffer) == BUFFER_LENGTH:
+                print('LENGTH MATCH')
+                print(serial_buffer)
+                # Unpack the struct that is the serial message
+                # Arduino is little-endian
+                unpack_data = struct.unpack('<h d', serial_buffer)
+                # Build the JSON with struct method
+                data = {}
+                for item in range(len(Keys)):
+                    # Because LOXLVL data is float-typed, trim the excess decimal places
+                    if Keys[item] == "LOXLVL":
+                        data[Keys[item]] = str(round(unpack_data[item], 1))
+                    else:
+                        data[Keys[item]] = str(unpack_data[item])
+                    print(data)
+                    json_data = json.dumps(data)
+                    json_data = json.loads(json_data)		# Weird fix?
+
+            else:
+                # If it is incorrect, discard the read and find another terminator
+                print("=================")
+                print(len(serial_buffer))
+                print(serial_buffer)
+                print("WRONG LENGTH - DISCARD")
+
+@app.route('/serial/auxdata/<action>')
+def caching_control(action):
+  global CACHING
+  if action == 'START':
+    # Check if the serial port is open
+    try:
+      ser.open()
+    except serial.serialutil.SerialException:
+      print('Port already open. Continuing...')
+    print('ACTION START')
+    #ser.flushInput()
+
+    # Change the flow control variable value
+    with lock:
+      CACHING = True
+
+    # Generate event message dict
+    message=padOut()
+    event_data = {'EVENT':'START AUX DATA COLLECT'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+    
+    return 'Caching started'
+
+    # Insert event into events database
+    # redis.xadd(event_stream, 'caching data')
+  
+  if action == 'CLOSE':
+    print('ACTION STOP')
+    with lock:
+      CACHING = False
+
+    # Generate event message dict
+    message=padOut()
+    event_data = {'EVENT':'STOP AUX DATA COLLECT'}
+    event_data = {**event_data, **message}
+    redis.xadd(eventDB_name,event_data)
+
+    return 'Caching closed'
+
+  return abort(404)
+
+if __name__ == '__main__':
+      # Threading the routes
+      flaskApp_thread = threading.Thread(target=run_app)
+      caching_thread = threading.Thread(target=Cache, args=[ser, redis])
+      flaskApp_thread.start()
+      caching_thread.start()
