@@ -192,12 +192,8 @@ def auxdata_update():
     if request.method == 'GET':
         # Get the data from redis, only the newest value is important
         print('GET request received')
-        auxdata_batch = redis.xread({ stream_name: '$'}, None, 0)
-        (auxdata_label, auxdata_slice) = auxdata_batch[0]
-        print('label and slice:')
-        print(auxdata_label)
-        print(auxdata_slice)
-        (auxdata_stamp, auxdata_data) = auxdata_slice[0]
+        auxdata_batch = redis.xrevrange(stream_name, max='+', count=1)
+        (auxdata_stamp, auxdata_data) = auxdata_batch[0]
         print('stamp and data:')
         print(auxdata_stamp)
         print(auxdata_data)
