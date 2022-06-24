@@ -1,5 +1,6 @@
 from flask import Flask, abort, request
 from flask_cors import CORS
+import re
 import redis as red
 import serial, serial.tools.list_ports
 import json, struct, sys, threading
@@ -97,7 +98,7 @@ def Cache(ser, redis):
         # Empty loop waiting for CACHING = True
 
         if CACHING:
-            print("LOOPING")
+            #print("LOOPING")
             # Flush the input buffer to get fresh data
             # ser.reset_input_buffer()
 
@@ -108,8 +109,8 @@ def Cache(ser, redis):
             BUFFER_LENGTH = 10
 
             if len(serial_buffer) == BUFFER_LENGTH:
-                print('LENGTH MATCH')
-                print(serial_buffer)
+                #print('LENGTH MATCH')
+                #print(serial_buffer)
                 # Unpack the struct that is the serial message
                 # Arduino is little-endian
                 unpack_data = struct.unpack('<h d', serial_buffer)
@@ -121,7 +122,7 @@ def Cache(ser, redis):
                         data[Keys[item]] = str(round(unpack_data[item], 1))
                     else:
                         data[Keys[item]] = str(unpack_data[item])
-                    print(data)
+                    #print(data)
                     json_data = json.dumps(data)
                     json_data = json.loads(json_data)		# Weird fix?
 
@@ -190,8 +191,18 @@ def auxdata_update():
 
     if request.method == 'GET':
         # Get the data from redis, only the newest value is important
-        (auxdata_label, auxdata_data) = redis.xread({ stream_name: '$'}, None, 0)
-        auxdata_timestamp = re.split("-", auxdata_label.decode())
+        print('GET request received')
+        auxdata_batch = redis.xread({ stream_name: '$'}, None, 0)
+        (auxdata_label, auxdata_slice) = auxdata_batch[0]
+        print('label and slice:')
+        print(auxdata_label)
+        print(auxdata_slice)
+        (auxdata_stamp, auxdata_data) = auxdata_slice[0]
+        print('stamp and data:')
+        print(auxdata_stamp)
+        print(auxdata_data)
+        auxdata_timestamp = re.split("-", auxdata_stamp.decode())
+        print(auxdata_timestamp)
         auxdata_buffer = {'Timestamp': f"{auxdata_timestamp[0]}",
                             'LOXLVL': f"{auxdata_data[b'LOXLVL'].decode()}"
                             }
