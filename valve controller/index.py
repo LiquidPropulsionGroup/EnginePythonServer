@@ -63,11 +63,12 @@ KeyList = [
   "MAIN",
   "FUEL_Purge",
   "LOX_Purge",
-  "IGNITE"
+  "IGNITE",
+  "WATER_Flow"
 ]
 
 # Verify that the buffer is of the correct length
-BUFFER_LENGTH = 16
+BUFFER_LENGTH = 17
 
 def convert(obj):
     if isinstance(obj, bool):
@@ -103,6 +104,8 @@ def compose_pair(key, state, instruction):
     leadByte = b'\x65'    # LOX_Purg(e)
   elif key == KeyList[7]:
     leadByte = b'\x49'    # (I)GNITE
+  elif key == KeyList[8]:
+    leadByte = b'\x57'    # (W)ater_Flow
 
   if state == True:
     stateByte = b'\x31'   # True (1)
@@ -181,7 +184,7 @@ def valve_update():
   if len(serial_buffer) == BUFFER_LENGTH:
     # Unpack the struct that is the serial message
     # Arduino is little-endian
-    unpack_data = struct.unpack('<I b b b b b b b b I', serial_buffer)
+    unpack_data = struct.unpack('<I b b b b b b b b b I', serial_buffer)
     #print(unpack_data)
     # Build the JSON with struct method
     data = {}
