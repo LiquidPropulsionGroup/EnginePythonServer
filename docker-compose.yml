@@ -52,18 +52,18 @@ services:
   #     - PYTHONUNBUFFERED=1
   #     - SSL_DISABLE=True
 
-  auxiliary-database-service:
-   container_name: auxiliary-service
-   build:
-     context: ./auxiliary database
-     dockerfile: ./dockerfile
-   ports:
-     - 3004:3004
-   devices:
-     - "/dev/controller_LOXLVL:/dev/controller_LOXLVL"
-   environment:
-     - PYTHONUNBUFFERED=1
-     - SSL_DISABLE=True
+#  auxiliary-database-service:
+#   container_name: auxiliary-service
+#   build:
+#     context: ./auxiliary database
+#     dockerfile: ./dockerfile
+#   ports:
+#     - 3004:3004
+#   devices:
+#     - "/dev/controller_LOXLVL:/dev/controller_LOXLVL"
+#   environment:
+#     - PYTHONUNBUFFERED=1
+#     - SSL_DISABLE=True
 
   redis-db:
     container_name: redis-database

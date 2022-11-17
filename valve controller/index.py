@@ -139,8 +139,8 @@ def valve_update():
     # Build the instruction message
     instruction = b'\x3C'   # Starter character '<'
     for key in KeyList:
-      # print(key)
-      # print(int(message[key]))
+      #print(key)
+      #print(int(message[key]))
       instruction = compose_pair(key,message[key],instruction)
     instruction += b'\x3E'  # Terminator character '>'
 
@@ -161,7 +161,7 @@ def valve_update():
     # A string of same length as the instruction message for simplicity
     status_request_char = b'\x3F'
     status_request = b'\x3C'
-    for i in range(0,BUFFER_LENGTH):
+    for i in range(0,BUFFER_LENGTH+1):
         status_request += status_request_char
     status_request += b'\x3E'
     ser.write(status_request)
@@ -176,7 +176,8 @@ def valve_update():
 
   #ser.reset_input_buffer()
   print("AWAIT RESPONSE")
-  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
+  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+  print("SERIAL READ")
   print(serial_buffer)
 
   
@@ -203,8 +204,8 @@ def valve_update():
       redis.xadd(eventDB_name, event_data)
       redis.xadd(stream_name, json_data)
       # print('Added to redis stream')
-      print("Reply:")
-      print(json_data)
+      #print("Reply:")
+      #print(json_data)
       return json_data
 
   return "Sent + Received"
