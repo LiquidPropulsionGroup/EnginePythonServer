@@ -23,7 +23,7 @@ services:
    devices:
      - "/dev/controller_VALVE:/dev/controller_valve"
    environment:
-     - PYTHONUNBEFFERED=1
+     - PYTHONUNBUFFERED=1
      - SSL_DISABLE=True
 
   # storage-database-service:
