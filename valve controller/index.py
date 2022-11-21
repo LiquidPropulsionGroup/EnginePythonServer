@@ -176,7 +176,7 @@ def valve_update():
 
   #ser.reset_input_buffer()
   print("AWAIT RESPONSE")
-  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
+  serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF')
   print("SERIAL READ")
   print(serial_buffer)
 
