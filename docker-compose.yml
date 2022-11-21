@@ -11,7 +11,6 @@ services:
      - "/dev/controller_SENSOR:/dev/controller_sensor"
    environment:
      - PYTHONUNBUFFERED=1
-     - SSL_DISABLE=True
 
   valve-controller-service:
    container_name: valve-controller
@@ -24,7 +23,6 @@ services:
      - "/dev/controller_VALVE:/dev/controller_valve"
    environment:
      - PYTHONUNBEFFERED=1
-     - SSL_DISABLE=True
 
   # storage-database-service:
   #   container_name: storage-service
