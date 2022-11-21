@@ -47,10 +47,12 @@ KeyList = [
   "MAIN",
   "FUEL_Purge",
   "LOX_Purge",
+  "IGNITE",
+  "WATER_Flow"
 ]
 
 def padOut():
-    # Create empty elements
+    # Create empty elements to ensure consistent stream width
     padding = {}
     for n in range(len(KeyList)):
           name = KeyList[n]
@@ -101,7 +103,7 @@ def run_app():
   app.run(debug=False, host='0.0.0.0', port=3002, threaded=True)
 
 def Cache(ser, redis):
-  # Function for extracting uint16_t (2 bytes) data from the serial stream
+  # Function for extracting data from the serial stream
   # Runs continuously while serial communication is present
 
   # Execution control variable is global
