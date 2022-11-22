@@ -1,4 +1,5 @@
 from flask import Flask, abort
+from flask_cors import CORS
 import redis as red
 import serial, serial.tools.list_ports
 import json, struct, sys
@@ -61,6 +62,7 @@ def padOut():
 
 # Flask app settings
 app = Flask(__name__)
+CORS(app)
 
 # Lock a thread
 lock = threading.Lock()
@@ -194,6 +196,11 @@ def caching_control(action):
     redis.xadd(eventDB_name,event_data)
 
     return 'Caching closed'
+
+  if action == 'STATUS':
+    print('STATUS UPDATE REQUESTED')
+
+    return str(CACHING)
 
   return abort(404)
 
