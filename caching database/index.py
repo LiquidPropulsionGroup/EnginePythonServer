@@ -86,7 +86,7 @@ redis = red.Redis(host='redis-database', port=6379)
 Keys = [
         "PT_HE",
         # "PT_Purge",
-        # "PT_Pneu",
+        "PT_LOX_2",
         "PT_FUEL_PV",
         "PT_LOX_PV",
         "PT_FUEL_INJ",
@@ -123,14 +123,14 @@ def Cache(ser, redis):
       serial_buffer = ser.read_until(b'\xFF\xFF\xFF\xFF\x00\x00\x00\x00')
         
       # Verify that the buffer is of the correct length
-      BUFFER_LENGTH = 32
+      BUFFER_LENGTH = 34
 
       if len(serial_buffer) == BUFFER_LENGTH:
         print('LENGTH MATCH')
         print(serial_buffer)
         # Unpack the struct that is the serial message
         # Arduino is little-endian
-        unpack_data = struct.unpack('<h h h h h h h h h h f d', serial_buffer)
+        unpack_data = struct.unpack('<h h h h h h h h h h h f d', serial_buffer)
         # Build the JSON with struct method
         data = {}
         for item in range(len(Keys)):
