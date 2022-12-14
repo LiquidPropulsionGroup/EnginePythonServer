@@ -267,6 +267,29 @@ def autoSequence():
 def abortSequence():
   global ABORTED
   ABORTED = True
+  seqJSON = open('safe.json')
+  data = json.load(seqJSON)
+  # Abort requires a return to the safe state
+  message = data["State"]
+  
+  # Build the instruction message
+  instruction = b'\x3C'   # Starter character '<'
+  for key in KeyList:
+    #print(key)
+    #print(int(message[key]))
+    instruction = compose_pair(key,False,instruction)
+  instruction += b'\x3E'  # Terminator character '>'
+
+  # Send the instruction message
+  ser.write(instruction)
+  print(instruction)
+
+  # Generate event message dict
+  message = json.loads(json.dumps(convert(message)))
+  print(message)
+  event_data = {'EVENT':'ABORT'}
+  event_data = {**event_data, **message}
+  redis.xadd(eventDB_name,event_data)
   return "ABORT SENT"
 
 @app.route('/serial/valve/reset', methods= ['GET'])

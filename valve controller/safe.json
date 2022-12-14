@@ -1,0 +1,15 @@
+{
+    "Name": "Safe State",
+    "Duration": 20,
+    "State": {
+        "FUEL_Press": false,
+        "LOX_Press": false,
+        "FUEL_Vent": false,
+        "LOX_Vent": false,
+        "MAIN": false,
+        "FUEL_Purge": false,
+        "LOX_Purge": false,
+        "IGNITE": false,
+        "WATER_Flow": false
+    }
+}
