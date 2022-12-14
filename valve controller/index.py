@@ -3,6 +3,7 @@ from flask_cors import CORS
 import redis as red
 import serial, serial.tools.list_ports
 import json, struct, sys
+import time
 
 ####* User defined variables START *####
 try:
@@ -22,7 +23,7 @@ except IndexError:
     # for p in ports:
     #       com_list.append(p.device)
     # print(com_list)
-    # port = com_list[1]
+    # port = com_list[0]
     # print(port)
 
     # For use in live environment
@@ -40,16 +41,21 @@ else:
 
 eventDB_name = 'event_stream'
 
-# Serial port settings
-ser = serial.Serial(timeout=1)
-ser.baudrate = baudrate
-ser.port = port
-ser.open()
-
 # Flask app settings
 app = Flask(__name__)
 # To enable POST requests
 CORS(app)
+
+# Control variable
+ABORTED = False
+
+# Serial port settings
+ser = serial.Serial(timeout=1)
+ser.baudrate = baudrate
+ser.port = port
+
+# Opening serial port
+ser.open()
 
 # Creating redis client
 redis = red.Redis(host='redis-database', port=6379)
@@ -210,5 +216,51 @@ def valve_update():
 
   return "Sent + Received"
 
+@app.route('/serial/valve/autoseq', methods= ['GET'])
+def autoSequence():
+  # Runs the sequence written in sequence.json, autonomously
+  # Verifies abort has not been called before each next state is introduced
+  seqJSON = open('./valve controller/sequence.json')
+  data = json.load(seqJSON)
+  for i in data:
+    # If abort has not been called for, execute the hardcoded sequence
+    if ABORTED == False:
+      print("SEQUENCE STEP " + str(i) + ": " + str(data[i]["Name"]))
+
+      message = data[i]["State"]
+      # for key in data[i]["State"]:
+      #   print(key)
+      #   print(data[i]["State"][key])
+        
+
+      # Build the instruction message
+      instruction = b'\x3C'   # Starter character '<'
+      for key in KeyList:
+        #print(key)
+        #print(int(message[key]))
+        instruction = compose_pair(key,data[i]["State"][key],instruction)
+      instruction += b'\x3E'  # Terminator character '>'
+
+      # Send the instruction message
+      ser.write(instruction)
+      print(instruction)
+
+      # Generate event message dict
+      message = json.loads(json.dumps(convert(message)))
+      print(message)
+      event_data = {'EVENT':'POST'}
+      event_data = {**event_data, **message}
+      redis.xadd(eventDB_name,event_data)
+
+      # Wait the prescribed time before sending the next instructions
+      timeStart = time.time()
+      time.sleep(data[i]["Duration"])
+      timeEnd = time.time()
+      print(str(timeEnd-timeStart) + "s elapsed")
+
+
+  return "AUTOSEQUENCE START"
+
 if __name__ == '__main__':
-      app.run(host='0.0.0.0', port=3003)      
+      # Start the flask app
+      app.run(debug=False, host='0.0.0.0', port=3003)  
