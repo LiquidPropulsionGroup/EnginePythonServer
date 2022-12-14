@@ -220,7 +220,7 @@ def valve_update():
 def autoSequence():
   # Runs the sequence written in sequence.json, autonomously
   # Verifies abort has not been called before each next state is introduced
-  seqJSON = open('./valve controller/sequence.json')
+  seqJSON = open('sequence.json')
   data = json.load(seqJSON)
   for i in data:
     # If abort has not been called for, execute the hardcoded sequence
@@ -259,7 +259,7 @@ def autoSequence():
       print(str(timeEnd-timeStart) + "s elapsed")
 
 
-  return "AUTOSEQUENCE START"
+  return "AUTOSEQUENCE COMPLETE"
 
 if __name__ == '__main__':
       # Start the flask app
