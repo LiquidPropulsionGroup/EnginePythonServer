@@ -17,17 +17,17 @@ try:
     sys.argv[2]
 except IndexError:
     # For use in desktop environment:
-    # ports = serial.tools.list_ports.comports()
-    # print(ports)
-    # com_list = []
-    # for p in ports:
-    #       com_list.append(p.device)
-    # print(com_list)
-    # port = com_list[0]
-    # print(port)
+    ports = serial.tools.list_ports.comports()
+    print(ports)
+    com_list = []
+    for p in ports:
+          com_list.append(p.device)
+    print(com_list)
+    port = com_list[0]
+    print(port)
 
     # For use in live environment
-    port = '/dev/controller_valve' # defult value
+    # port = '/dev/controller_valve' # defult value
 else:
     port = sys.argv[2]
 
@@ -220,6 +220,7 @@ def valve_update():
 def autoSequence():
   # Runs the sequence written in sequence.json, autonomously
   # Verifies abort has not been called before each next state is introduced
+  global ABORTED
   seqJSON = open('./valve controller/sequence.json')
   data = json.load(seqJSON)
   for i in data:
@@ -257,9 +258,22 @@ def autoSequence():
       time.sleep(data[i]["Duration"])
       timeEnd = time.time()
       print(str(timeEnd-timeStart) + "s elapsed")
-
+    else:
+      return "SYSTEM IS IN ABORT STATE — NO SEQUENCE"
 
   return "AUTOSEQUENCE START"
+
+@app.route('/serial/valve/abort', methods= ['GET'])
+def abortSequence():
+  global ABORTED
+  ABORTED = True
+  return "ABORT SENT"
+
+@app.route('/serial/valve/reset', methods= ['GET'])
+def resetAbort():
+  global ABORTED
+  ABORTED = False
+  return "ABORT STATE CLEARED"
 
 if __name__ == '__main__':
       # Start the flask app
