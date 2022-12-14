@@ -221,7 +221,7 @@ def autoSequence():
   # Runs the sequence written in sequence.json, autonomously
   # Verifies abort has not been called before each next state is introduced
   global ABORTED
-  seqJSON = open('./valve controller/sequence.json')
+  seqJSON = open('sequence.json')
   data = json.load(seqJSON)
   for i in data:
     # If abort has not been called for, execute the hardcoded sequence
@@ -261,7 +261,7 @@ def autoSequence():
     else:
       return "SYSTEM IS IN ABORT STATE — NO SEQUENCE"
 
-  return "AUTOSEQUENCE START"
+  return "AUTOSEQUENCE COMPLETE"
 
 @app.route('/serial/valve/abort', methods= ['GET'])
 def abortSequence():
